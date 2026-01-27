@@ -1,0 +1,261 @@
+/* MultiSelect Styles */
+.multi-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.multi-select-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.multi-select-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.multi-select-pill {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background-color: #ffffff;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.multi-select-pill:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.multi-select-pill.selected {
+  border-color: #3b82f6;
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.multi-select-pill.selected:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+/* TagInput Styles */
+.tag-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tag-input-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  min-height: 48px;
+  transition: border-color 150ms ease;
+}
+
+.tag-input-container:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.tag-input-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-input-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 12px;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+
+.tag-input-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.tag-input-remove:hover {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tag-input-field {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1f2937;
+  background: transparent;
+}
+
+.tag-input-field::placeholder {
+  color: #9ca3af;
+}
+
+/* LoadingSpinner Styles */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.loading-spinner-message {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.loading-spinner-circle {
+  border-radius: 50%;
+  border-style: solid;
+  border-color: #e5e7eb;
+  border-top-color: #3b82f6;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-spinner-small .loading-spinner-circle {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.loading-spinner-medium .loading-spinner-circle {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.loading-spinner-large .loading-spinner-circle {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* EmptyState Styles */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+}
+
+.empty-state-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.empty-state-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+  max-width: 360px;
+}
+
+.empty-state-action {
+  display: flex;
+  gap: 12px;
+}
+
+/* Mobile Responsive - 375px */
+@media (max-width: 375px) {
+  .empty-state {
+    padding: 32px 16px;
+  }
+
+  .empty-state-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .empty-state-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .empty-state-title {
+    font-size: 16px;
+  }
+
+  .empty-state-description {
+    font-size: 13px;
+    max-width: 280px;
+  }
+
+  .empty-state-action {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .loading-spinner-message {
+    font-size: 13px;
+  }
+}
