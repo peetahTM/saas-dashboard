@@ -211,6 +211,87 @@ Notifications:
 
 ---
 
+## Task #6: Implement Receipt Scanning and Item Upload with Tesseract
+
+**Status:** completed
+**Assigned to:** Agent 6 (Claude)
+
+### Goal
+Enable users to scan grocery receipts using their camera or upload receipt images, extract item data using Tesseract OCR, and automatically add recognized items to their pantry.
+
+### Dependencies
+- Tesseract.js (client-side OCR) or node-tesseract-ocr (server-side)
+- Image preprocessing library (e.g., sharp for Node.js)
+
+### Files to create
+- `frontend/src/components/Receipt/ReceiptScanner.tsx` - Camera capture and image upload UI
+- `frontend/src/components/Receipt/ReceiptPreview.tsx` - Display captured/uploaded image with crop controls
+- `frontend/src/components/Receipt/ParsedItemsList.tsx` - Show extracted items for user review/edit
+- `frontend/src/services/receiptService.ts` - API calls for receipt processing
+- `backend/src/routes/receipts.js` - Receipt processing endpoints
+- `backend/src/services/ocrService.js` - Tesseract OCR integration and text parsing
+- `backend/src/utils/receiptParser.js` - Parse OCR text into structured grocery items
+
+### Files to modify
+- `frontend/src/pages/Pantry.tsx` - Add "Scan Receipt" button
+- `frontend/src/App.tsx` - Add route for receipt scanner page (if separate page)
+- `backend/src/index.js` - Register receipt routes
+- `backend/package.json` - Add Tesseract and image processing dependencies
+
+### API Endpoints to implement
+```
+POST /api/receipts/upload    - Upload receipt image for processing
+POST /api/receipts/process   - Process uploaded image with OCR
+POST /api/receipts/confirm   - Confirm parsed items and add to pantry
+GET  /api/receipts/history   - Get user's receipt scan history
+```
+
+### OCR Processing Pipeline
+1. **Image Upload** - Accept JPEG/PNG, max 10MB
+2. **Preprocessing** - Resize, grayscale conversion, contrast enhancement
+3. **OCR Extraction** - Run Tesseract with optimized settings for receipts
+4. **Text Parsing** - Extract item names, quantities, prices using regex patterns
+5. **Item Matching** - Match extracted items against `grocery_suggestions` table
+6. **User Review** - Present parsed items for user confirmation/editing
+7. **Pantry Upload** - Add confirmed items to user's groceries
+
+### Receipt Parser Logic
+- Identify common receipt patterns (store headers, item lines, totals)
+- Extract item name and quantity from each line
+- Handle common OCR errors (0/O, 1/I/l confusion)
+- Support multiple receipt formats (grocery stores, supermarkets)
+- Estimate expiry dates based on `grocery_suggestions.default_expiry_days`
+
+### Database changes
+```sql
+receipt_scans (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  image_url VARCHAR,
+  raw_ocr_text TEXT,
+  parsed_items JSONB,
+  status VARCHAR DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT NOW()
+)
+```
+
+### Acceptance criteria
+- [x] User can capture receipt photo using device camera
+- [x] User can upload receipt image from device storage
+- [x] Image preview shows with ability to crop/rotate before processing
+- [x] Tesseract successfully extracts text from clear receipt images
+- [x] Parser correctly identifies 80%+ of items from standard grocery receipts
+- [x] Parsed items display in editable list with name, quantity, category fields
+- [x] User can add/remove/edit items before confirming
+- [x] Confirmed items are added to pantry with estimated expiry dates
+- [x] Processing shows loading state with progress indicator
+- [x] Error handling for unreadable images with retry option
+- [x] Receipt scan history accessible for reference
+- [x] Mobile-responsive UI for camera capture flow
+- [x] TypeScript types defined for all receipt-related interfaces
+
+---
+
 ## Task Status Legend
 
 - **pending** - Not started
