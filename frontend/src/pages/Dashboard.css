@@ -1,0 +1,518 @@
+/* Dashboard Page Styles */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.stat-change {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.stat-change.positive {
+  color: #059669;
+  background-color: #d1fae5;
+}
+
+.stat-change.negative {
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Styles */
+.chart-card,
+.activity-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.card-select {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  background: white;
+  cursor: pointer;
+}
+
+.card-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.card-link {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+/* Chart Placeholder */
+.chart-placeholder {
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 200px;
+  padding: 0 20px;
+}
+
+.chart-bar {
+  width: 40px;
+  background: linear-gradient(180deg, #3b82f6, #60a5fa);
+  border-radius: 6px 6px 0 0;
+  transition: height 300ms ease;
+}
+
+.chart-bar:hover {
+  background: linear-gradient(180deg, #2563eb, #3b82f6);
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 20px 0;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 12px;
+}
+
+.chart-labels span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Activity List */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activity-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.activity-user {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.activity-action {
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #9ca3af;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Quick Actions */
+.quick-actions {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.action-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.action-btn svg {
+  color: #3b82f6;
+}
+
+/* Error and Loading States */
+.dashboard__loading,
+.dashboard__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dashboard__error svg {
+  color: #ef4444;
+}
+
+.dashboard__error p {
+  color: #6b7280;
+  font-size: 15px;
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+.dashboard__retry-btn {
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.dashboard__retry-btn:hover {
+  background: #2563eb;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.empty-state svg {
+  color: #9ca3af;
+}
+
+.empty-state p {
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.empty-state span {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+/* Stat Card Colors */
+.stat-description {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon--warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.stat-icon--danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.stat-icon--success {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.stat-icon--primary {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+/* Widget Cards */
+.widget-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Expiring Items */
+.expiring-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expiring-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.expiring-item--urgent {
+  background: #fef2f2;
+}
+
+.expiring-item--warning {
+  background: #fffbeb;
+}
+
+.expiring-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.expiring-item__name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.expiring-item__quantity {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.expiring-item__badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.expiring-item__badge--urgent {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.expiring-item__badge--warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.expiring-item__badge--normal {
+  background: #d1fae5;
+  color: #059669;
+}
+
+/* Recipe Items */
+.recipes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recipe-item {
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.recipe-item:hover {
+  background: #f3f4f6;
+}
+
+.recipe-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.recipe-item__name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.recipe-item__time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.recipe-item__match {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recipe-item__match-count {
+  font-size: 13px;
+  color: #059669;
+}
+
+.recipe-item__ingredients {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.recipe-item__ingredient-tag {
+  padding: 2px 8px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
