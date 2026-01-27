@@ -60,7 +60,7 @@ Fix type errors and improve type safety in MealPlan-related components.
 
 ## Task #3: Audit and Improve Error Handling
 
-**Status:** in_progress
+**Status:** completed
 **Assigned to:** Agent 3 (Claude)
 
 ### Goal
@@ -75,13 +75,13 @@ Replace generic errors with user-friendly messages and add error recovery option
 - `backend/src/routes/*.js` - Ensure consistent error response format
 
 ### Acceptance criteria
-- [ ] Generic "Something went wrong" errors replaced with specific, actionable messages
-- [ ] All error states include retry buttons where appropriate
-- [ ] API errors return consistent JSON format: `{ error: string, code: string, details?: object }`
-- [ ] Add React Error Boundary component to catch component crashes
-- [ ] Console errors are meaningful for debugging (no spammy logs)
-- [ ] Network timeout errors show "Connection issue. Check your internet and try again."
-- [ ] 401 errors redirect to login with message "Session expired. Please log in again."
+- [x] Generic "Something went wrong" errors replaced with specific, actionable messages
+- [x] All error states include retry buttons where appropriate
+- [x] API errors return consistent JSON format: `{ error: string, code: string, details?: object }`
+- [x] Add React Error Boundary component to catch component crashes
+- [x] Console errors are meaningful for debugging (no spammy logs)
+- [x] Network timeout errors show "Connection issue. Check your internet and try again."
+- [x] 401 errors redirect to login with message "Session expired. Please log in again."
 
 ---
 
