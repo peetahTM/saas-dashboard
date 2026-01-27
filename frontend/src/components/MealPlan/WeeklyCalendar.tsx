@@ -82,7 +82,11 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
       </div>
       <div className="weekly-calendar__grid">
         {DAYS_OF_WEEK.map((dayName, index) => {
-          const dayMeals: DayMeals = currentPlan.meals[dayName];
+          const dayMeals: DayMeals = currentPlan.meals?.[dayName] ?? {
+            breakfast: null,
+            lunch: null,
+            dinner: null,
+          };
           const date = getDateForDay(currentPlan.weekStart, index);
           return (
             <DayColumn
