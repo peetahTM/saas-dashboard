@@ -16,6 +16,37 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.pantry__form-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pantry__scan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.pantry__scan-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.pantry__scan-btn svg {
+  flex-shrink: 0;
+}
+
 /* Add Grocery Form */
 .add-grocery-form__title {
   font-size: 18px;
