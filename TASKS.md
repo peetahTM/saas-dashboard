@@ -87,8 +87,8 @@ Replace generic errors with user-friendly messages and add error recovery option
 
 ## Task #4: Create Database Migrations and Seed Data
 
-**Status:** pending
-**Assigned to:** Agent 4
+**Status:** completed
+**Assigned to:** Agent 4 (Claude)
 
 ### Goal
 Create comprehensive database setup with migrations, seed data, and runner scripts.
@@ -122,13 +122,13 @@ notifications (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id), type VAR
 - Sample groceries with various expiry dates for demo user
 
 ### Acceptance criteria
-- [ ] Migration creates all tables with proper constraints and indexes
-- [ ] Seed script populates meaningful test data
-- [ ] `npm run migrate` runs migrations successfully
-- [ ] `npm run seed` populates database with test data
-- [ ] Idempotent migrations (safe to run multiple times)
-- [ ] Foreign key relationships properly defined
-- [ ] Add npm scripts to package.json for migrate/seed commands
+- [x] Migration creates all tables with proper constraints and indexes
+- [x] Seed script populates meaningful test data
+- [x] `npm run migrate` runs migrations successfully
+- [x] `npm run seed` populates database with test data
+- [x] Idempotent migrations (safe to run multiple times)
+- [x] Foreign key relationships properly defined
+- [x] Add npm scripts to package.json for migrate/seed commands
 
 ---
 
