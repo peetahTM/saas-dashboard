@@ -193,7 +193,7 @@ Allow users to organize groceries by storage location (fridge, freezer, pantry) 
 
 ## Task 10: Add Swedish Language Support for Receipt Scanner
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Enable OCR and categorization to work with Swedish receipts.

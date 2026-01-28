@@ -2,34 +2,84 @@
  * Receipt Parser - Extracts grocery items from OCR text
  */
 
-// Common receipt patterns
-const PRICE_PATTERN = /\$?\d+\.\d{2}/;
-const QUANTITY_PATTERN = /^(\d+(?:\.\d+)?)\s*(x|@|\*)?/i;
-const WEIGHT_PATTERN = /(\d+(?:\.\d+)?)\s*(lb|lbs|oz|kg|g)\b/i;
+// Common receipt patterns (supports Swedish price format with comma)
+const PRICE_PATTERN = /\$?\d+[.,]\d{2}/;
+const QUANTITY_PATTERN = /^(\d+(?:[.,]\d+)?)\s*(x|@|\*|st)?/i;
+const WEIGHT_PATTERN = /(\d+(?:[.,]\d+)?)\s*(lb|lbs|oz|kg|g|dl|l|cl|ml|st)\b/i;
 
 // Common words to filter out (not grocery items)
 const FILTER_WORDS = new Set([
+  // English
   'total', 'subtotal', 'tax', 'change', 'cash', 'credit', 'debit',
   'card', 'visa', 'mastercard', 'amex', 'thank', 'thanks', 'welcome',
   'receipt', 'store', 'address', 'phone', 'tel', 'date', 'time',
   'cashier', 'register', 'transaction', 'balance', 'savings', 'discount',
   'coupon', 'member', 'points', 'rewards', 'loyalty', 'approved',
+  // Swedish
+  'totalt', 'summa', 'moms', 'kontant', 'kort', 'kvitto', 'butik',
+  'tack', 'välkommen', 'datum', 'tid', 'kassör', 'rabatt', 'bonus',
+  'medlem', 'poäng', 'ändring', 'saldo', 'besparing', 'kupong',
+  'godkänd', 'adress', 'telefon', 'transaktion', 'register',
 ]);
 
-// Category mappings based on keywords
+// Category mappings based on keywords (English and Swedish)
 const CATEGORY_KEYWORDS = {
-  produce: ['apple', 'banana', 'orange', 'tomato', 'lettuce', 'carrot', 'onion',
-            'potato', 'broccoli', 'spinach', 'pepper', 'cucumber', 'avocado',
-            'grape', 'strawberry', 'blueberry', 'lemon', 'lime', 'celery', 'garlic'],
-  dairy: ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg', 'eggs'],
-  meat: ['chicken', 'beef', 'pork', 'turkey', 'bacon', 'sausage', 'ham',
-         'steak', 'ground', 'fish', 'salmon', 'tuna', 'shrimp'],
-  bakery: ['bread', 'bagel', 'muffin', 'croissant', 'roll', 'bun', 'cake', 'donut'],
-  pantry: ['rice', 'pasta', 'cereal', 'flour', 'sugar', 'oil', 'salt', 'pepper',
-           'sauce', 'soup', 'can', 'beans', 'coffee', 'tea'],
-  frozen: ['frozen', 'ice cream', 'pizza', 'fries'],
-  beverages: ['water', 'juice', 'soda', 'cola', 'beer', 'wine', 'drink'],
-  snacks: ['chips', 'crackers', 'cookies', 'candy', 'chocolate', 'nuts'],
+  produce: [
+    // English
+    'apple', 'banana', 'orange', 'tomato', 'lettuce', 'carrot', 'onion',
+    'potato', 'broccoli', 'spinach', 'pepper', 'cucumber', 'avocado',
+    'grape', 'strawberry', 'blueberry', 'lemon', 'lime', 'celery', 'garlic',
+    // Swedish
+    'äpple', 'banan', 'apelsin', 'tomat', 'sallad', 'morot', 'lök',
+    'potatis', 'broccoli', 'spenat', 'paprika', 'gurka', 'avokado',
+    'druva', 'jordgubbe', 'blåbär', 'citron', 'lime', 'selleri', 'vitlök',
+  ],
+  dairy: [
+    // English
+    'milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg', 'eggs',
+    // Swedish
+    'mjölk', 'ost', 'yoghurt', 'smör', 'grädde', 'ägg', 'fil', 'kvarg',
+  ],
+  meat: [
+    // English
+    'chicken', 'beef', 'pork', 'turkey', 'bacon', 'sausage', 'ham',
+    'steak', 'ground', 'fish', 'salmon', 'tuna', 'shrimp',
+    // Swedish
+    'kyckling', 'nötkött', 'fläsk', 'kalkon', 'bacon', 'korv', 'skinka',
+    'biff', 'färs', 'fisk', 'lax', 'tonfisk', 'räkor', 'köttfärs',
+  ],
+  bakery: [
+    // English
+    'bread', 'bagel', 'muffin', 'croissant', 'roll', 'bun', 'cake', 'donut',
+    // Swedish
+    'bröd', 'bulle', 'muffins', 'croissant', 'fralla', 'tårta', 'kaka', 'munk',
+  ],
+  pantry: [
+    // English
+    'rice', 'pasta', 'cereal', 'flour', 'sugar', 'oil', 'salt', 'pepper',
+    'sauce', 'soup', 'can', 'beans', 'coffee', 'tea',
+    // Swedish
+    'ris', 'pasta', 'flingor', 'mjöl', 'socker', 'olja', 'salt', 'peppar',
+    'sås', 'soppa', 'konserv', 'bönor', 'kaffe', 'te',
+  ],
+  frozen: [
+    // English
+    'frozen', 'ice cream', 'pizza', 'fries',
+    // Swedish
+    'fryst', 'frysta', 'glass', 'pizza', 'pommes',
+  ],
+  beverages: [
+    // English
+    'water', 'juice', 'soda', 'cola', 'beer', 'wine', 'drink',
+    // Swedish
+    'vatten', 'juice', 'läsk', 'cola', 'öl', 'vin', 'dryck', 'must',
+  ],
+  snacks: [
+    // English
+    'chips', 'crackers', 'cookies', 'candy', 'chocolate', 'nuts',
+    // Swedish
+    'chips', 'kex', 'kakor', 'godis', 'choklad', 'nötter',
+  ],
 };
 
 // Default expiry days by category
@@ -46,18 +96,18 @@ const DEFAULT_EXPIRY_DAYS = {
 };
 
 /**
- * Clean and normalize text
+ * Clean and normalize text (supports Swedish characters å, ä, ö)
  */
 function cleanText(text) {
   return text
-    .replace(/[^\w\s\$\.\-]/g, ' ')
+    .replace(/[^\w\s\$\.\-åäöÅÄÖ]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
 }
 
 /**
- * Check if a line looks like a grocery item
+ * Check if a line looks like a grocery item (supports Swedish characters)
  */
 function isLikelyGroceryItem(line) {
   const cleaned = cleanText(line);
@@ -65,8 +115,8 @@ function isLikelyGroceryItem(line) {
   // Skip very short lines
   if (cleaned.length < 3) return false;
 
-  // Skip lines that are mostly numbers
-  const letterCount = (cleaned.match(/[a-z]/g) || []).length;
+  // Skip lines that are mostly numbers (include Swedish letters å, ä, ö)
+  const letterCount = (cleaned.match(/[a-zåäö]/g) || []).length;
   if (letterCount < 2) return false;
 
   // Skip lines with filter words
@@ -118,14 +168,14 @@ function extractQuantity(text) {
 }
 
 /**
- * Clean up item name
+ * Clean up item name (supports Swedish characters å, ä, ö)
  */
 function cleanItemName(text) {
   return text
     .replace(PRICE_PATTERN, '')
     .replace(QUANTITY_PATTERN, '')
     .replace(WEIGHT_PATTERN, '')
-    .replace(/[^\w\s\-]/g, ' ')
+    .replace(/[^\w\s\-åäöÅÄÖ]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .split(' ')
