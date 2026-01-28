@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { receiptService, type ParsedItem, type ReceiptScan, type ImageDimensions } from '../../services/receiptService';
 import ReceiptPreview from './ReceiptPreview';
 import ParsedItemsList from './ParsedItemsList';
@@ -27,6 +27,15 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Cleanup object URL on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

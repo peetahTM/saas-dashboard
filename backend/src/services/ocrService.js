@@ -17,7 +17,7 @@ class OcrService {
    * - Increase contrast
    * - Resize if too large
    * @param {Buffer} imageBuffer - Raw image buffer
-   * @returns {Promise<Buffer>} Processed image buffer
+   * @returns {Promise<{buffer: Buffer, dimensions: {width: number, height: number}}>} Processed image buffer and dimensions
    */
   async preprocessImage(imageBuffer) {
     try {
@@ -29,6 +29,10 @@ class OcrService {
         .normalize()
         .sharpen();
 
+      // Calculate processed dimensions
+      let processedWidth = metadata.width;
+      let processedHeight = metadata.height;
+
       // Resize if image is very large (max 2000px on longest side)
       const maxDimension = 2000;
       if (metadata.width > maxDimension || metadata.height > maxDimension) {
@@ -36,9 +40,22 @@ class OcrService {
           fit: 'inside',
           withoutEnlargement: true,
         });
+
+        // Calculate new dimensions after resize
+        const scale = Math.min(maxDimension / metadata.width, maxDimension / metadata.height);
+        processedWidth = Math.round(metadata.width * scale);
+        processedHeight = Math.round(metadata.height * scale);
       }
 
-      return processed.png().toBuffer();
+      const buffer = await processed.png().toBuffer();
+
+      return {
+        buffer,
+        dimensions: {
+          width: processedWidth,
+          height: processedHeight,
+        },
+      };
     } catch (error) {
       console.error('[OCR] Image preprocessing error:', error.message);
       throw new Error('Failed to preprocess image');
@@ -48,12 +65,12 @@ class OcrService {
   /**
    * Extract text from an image using Tesseract OCR
    * @param {Buffer} imageBuffer - Image buffer to process
-   * @returns {Promise<{text: string, confidence: number, lines: Array}>} Extracted text, confidence score, and line data with bounding boxes
+   * @returns {Promise<{text: string, confidence: number, lines: Array, processedDimensions: {width: number, height: number}}>} Extracted text, confidence score, line data with bounding boxes, and processed image dimensions
    */
   async extractText(imageBuffer) {
     try {
       // Preprocess the image
-      const processedImage = await this.preprocessImage(imageBuffer);
+      const { buffer: processedImage, dimensions: processedDimensions } = await this.preprocessImage(imageBuffer);
 
       // Run OCR with English language
       const result = await Tesseract.recognize(processedImage, 'eng', {
@@ -81,6 +98,7 @@ class OcrService {
         text: result.data.text,
         confidence: result.data.confidence,
         lines,
+        processedDimensions,
       };
     } catch (error) {
       console.error('[OCR] Text extraction error:', error.message);
@@ -91,15 +109,16 @@ class OcrService {
   /**
    * Process a receipt image and extract structured data
    * @param {Buffer} imageBuffer - Receipt image buffer
-   * @returns {Promise<{rawText: string, confidence: number, lines: Array}>}
+   * @returns {Promise<{rawText: string, confidence: number, lines: Array, processedDimensions: {width: number, height: number}}>}
    */
   async processReceipt(imageBuffer) {
-    const { text, confidence, lines } = await this.extractText(imageBuffer);
+    const { text, confidence, lines, processedDimensions } = await this.extractText(imageBuffer);
 
     return {
       rawText: text,
       confidence,
       lines,
+      processedDimensions,
     };
   }
 }

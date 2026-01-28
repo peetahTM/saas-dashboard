@@ -2,7 +2,6 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
-import sharp from 'sharp';
 import { authenticateToken } from '../middleware/auth.js';
 import pool from '../db/index.js';
 import { CommonErrors } from '../utils/errorResponse.js';
@@ -50,15 +49,11 @@ router.post('/upload', authenticateToken, upload.single('receipt'), async (req, 
 
     const scanId = scanResult.rows[0].id;
 
-    // Get original image dimensions for coordinate scaling
-    const imageMetadata = await sharp(req.file.buffer).metadata();
-    const imageDimensions = {
-      width: imageMetadata.width,
-      height: imageMetadata.height,
-    };
+    // Process the image with OCR (returns processed dimensions for accurate bbox scaling)
+    const { rawText, confidence, lines, processedDimensions } = await ocrService.processReceipt(req.file.buffer);
 
-    // Process the image with OCR
-    const { rawText, confidence, lines } = await ocrService.processReceipt(req.file.buffer);
+    // Use processed dimensions since bboxes are relative to the processed image
+    const imageDimensions = processedDimensions;
 
     // Parse the OCR text with line data for bounding boxes
     let parsedItems = parseReceiptText(rawText, lines);
