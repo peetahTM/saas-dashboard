@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
-import { receiptService, type ParsedItem, type ReceiptScan } from '../../services/receiptService';
+import { receiptService, type ParsedItem, type ReceiptScan, type ImageDimensions } from '../../services/receiptService';
 import ReceiptPreview from './ReceiptPreview';
 import ParsedItemsList from './ParsedItemsList';
+import HighlightedReceipt from './HighlightedReceipt';
 import './Receipt.css';
 
 interface ReceiptScannerProps {
@@ -20,6 +21,9 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
   const [scanResult, setScanResult] = useState<ReceiptScan | null>(null);
   const [editedItems, setEditedItems] = useState<ParsedItem[]>([]);
   const [addedCount, setAddedCount] = useState(0);
+  const [imageDimensions, setImageDimensions] = useState<ImageDimensions | undefined>(undefined);
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+  const [scrollToIndex, setScrollToIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +81,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     if (result.data) {
       setScanResult(result.data);
       setEditedItems(result.data.items);
+      setImageDimensions(result.data.imageDimensions);
       setStep('review');
     }
   };
@@ -89,12 +94,29 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     setPreviewUrl(null);
     setScanResult(null);
     setEditedItems([]);
+    setImageDimensions(undefined);
+    setHighlightedIndex(null);
+    setScrollToIndex(null);
     setError(null);
     setStep('capture');
   };
 
   const handleItemsChange = (items: ParsedItem[]) => {
     setEditedItems(items);
+  };
+
+  const handleHighlightFromReceipt = (index: number | null) => {
+    setHighlightedIndex(index);
+  };
+
+  const handleHighlightFromList = (index: number | null) => {
+    setHighlightedIndex(index);
+  };
+
+  const handleReceiptItemClick = (index: number) => {
+    setScrollToIndex(index);
+    // Reset after a short delay to allow re-triggering
+    setTimeout(() => setScrollToIndex(null), 100);
   };
 
   const handleConfirm = async () => {
@@ -206,10 +228,26 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
         )}
       </div>
       <p className="receipt-scanner__review-hint">
-        Edit item names, categories, or quantities before adding to your pantry.
+        Click highlighted areas on the receipt or hover over items to see their location.
       </p>
 
-      <ParsedItemsList items={editedItems} onChange={handleItemsChange} />
+      <div className="receipt-scanner__review-content">
+        <HighlightedReceipt
+          imageUrl={previewUrl}
+          items={editedItems}
+          imageDimensions={imageDimensions}
+          highlightedIndex={highlightedIndex}
+          onItemClick={handleReceiptItemClick}
+          onItemHover={handleHighlightFromReceipt}
+        />
+        <ParsedItemsList
+          items={editedItems}
+          onChange={handleItemsChange}
+          highlightedIndex={highlightedIndex}
+          onItemHover={handleHighlightFromList}
+          scrollToIndex={scrollToIndex}
+        />
+      </div>
 
       <div className="receipt-scanner__review-actions">
         <button

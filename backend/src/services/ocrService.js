@@ -48,7 +48,7 @@ class OcrService {
   /**
    * Extract text from an image using Tesseract OCR
    * @param {Buffer} imageBuffer - Image buffer to process
-   * @returns {Promise<{text: string, confidence: number}>} Extracted text and confidence score
+   * @returns {Promise<{text: string, confidence: number, lines: Array}>} Extracted text, confidence score, and line data with bounding boxes
    */
   async extractText(imageBuffer) {
     try {
@@ -64,9 +64,23 @@ class OcrService {
         },
       });
 
+      // Extract line data with bounding boxes
+      const lines = (result.data.lines || []).map((line, index) => ({
+        index,
+        text: line.text,
+        confidence: line.confidence,
+        bbox: line.bbox ? {
+          x0: line.bbox.x0,
+          y0: line.bbox.y0,
+          x1: line.bbox.x1,
+          y1: line.bbox.y1,
+        } : null,
+      }));
+
       return {
         text: result.data.text,
         confidence: result.data.confidence,
+        lines,
       };
     } catch (error) {
       console.error('[OCR] Text extraction error:', error.message);
@@ -77,14 +91,15 @@ class OcrService {
   /**
    * Process a receipt image and extract structured data
    * @param {Buffer} imageBuffer - Receipt image buffer
-   * @returns {Promise<{rawText: string, confidence: number}>}
+   * @returns {Promise<{rawText: string, confidence: number, lines: Array}>}
    */
   async processReceipt(imageBuffer) {
-    const { text, confidence } = await this.extractText(imageBuffer);
+    const { text, confidence, lines } = await this.extractText(imageBuffer);
 
     return {
       rawText: text,
       confidence,
+      lines,
     };
   }
 }

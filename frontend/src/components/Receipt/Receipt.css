@@ -193,6 +193,12 @@
   gap: 16px;
 }
 
+.receipt-scanner__review-content {
+  display: flex;
+  gap: 16px;
+  max-height: 400px;
+}
+
 .receipt-scanner__review-header {
   display: flex;
   justify-content: space-between;
@@ -418,6 +424,83 @@
   color: #10b981;
 }
 
+/* Highlighted Receipt */
+.highlighted-receipt {
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.highlighted-receipt__container {
+  position: relative;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 350px;
+}
+
+.highlighted-receipt__image {
+  width: 100%;
+  height: auto;
+  max-height: 350px;
+  object-fit: contain;
+  display: block;
+}
+
+.highlighted-receipt__canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.highlighted-receipt__legend {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.highlighted-receipt__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.highlighted-receipt__legend-item::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.highlighted-receipt__legend-item--high::before {
+  background-color: rgba(34, 197, 94, 0.6);
+  border: 1px solid rgb(34, 197, 94);
+}
+
+.highlighted-receipt__legend-item--medium::before {
+  background-color: rgba(234, 179, 8, 0.6);
+  border: 1px solid rgb(234, 179, 8);
+}
+
+.highlighted-receipt__legend-item--low::before {
+  background-color: rgba(239, 68, 68, 0.6);
+  border: 1px solid rgb(239, 68, 68);
+}
+
+/* Parsed Items List - highlighted state */
+.parsed-items-list__item--highlighted {
+  background-color: #dbeafe;
+  border: 2px solid #3b82f6;
+}
+
 /* Modal Overlay */
 .receipt-modal-overlay {
   position: fixed;
@@ -431,6 +514,29 @@
 }
 
 /* Responsive */
+@media (max-width: 600px) {
+  .receipt-scanner__review-content {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .highlighted-receipt {
+    flex: none;
+  }
+
+  .highlighted-receipt__container {
+    max-height: 200px;
+  }
+
+  .highlighted-receipt__image {
+    max-height: 200px;
+  }
+
+  .parsed-items-list__items {
+    max-height: 200px;
+  }
+}
+
 @media (max-width: 480px) {
   .receipt-scanner {
     max-height: 100vh;
@@ -453,5 +559,9 @@
 
   .parsed-items-list__input--small {
     flex: 1 1 calc(50% - 4px);
+  }
+
+  .highlighted-receipt__legend {
+    font-size: 0.6875rem;
   }
 }
