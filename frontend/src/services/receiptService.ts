@@ -38,11 +38,6 @@ export interface ReceiptScanDetail {
   createdAt: string;
 }
 
-interface UploadResponse {
-  message: string;
-  scan: ReceiptScan;
-}
-
 interface ConfirmResponse {
   message: string;
   groceries: Array<{

@@ -38,10 +38,10 @@ function getExpiryText(status: ExpiryStatus, days: number): string {
 }
 
 const ExpiryBadge: React.FC<ExpiryBadgeProps> = ({ expiryDate }) => {
-  const { status, days, text } = useMemo(() => {
+  const { status, text } = useMemo(() => {
     const { status, days } = getExpiryStatus(expiryDate);
     const text = getExpiryText(status, days);
-    return { status, days, text };
+    return { status, text };
   }, [expiryDate]);
 
   return (

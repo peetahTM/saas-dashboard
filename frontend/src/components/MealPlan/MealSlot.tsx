@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import type { MealSlot } from '../../services/mealPlanService';
-import type { MealType } from './DayColumn';
+import type { MealSlot, MealType } from '../../services/mealPlanService';
 
 export interface MealSlotProps {
   mealType: MealType;
@@ -13,7 +12,7 @@ const mealTypeLabels: Record<MealType, string> = {
   dinner: 'Dinner',
 };
 
-const MealSlot: React.FC<MealSlotProps> = ({ mealType, meal }) => {
+const MealSlotComponent: React.FC<MealSlotProps> = ({ mealType, meal }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -44,4 +43,4 @@ const MealSlot: React.FC<MealSlotProps> = ({ mealType, meal }) => {
   );
 };
 
-export default MealSlot;
+export default MealSlotComponent;

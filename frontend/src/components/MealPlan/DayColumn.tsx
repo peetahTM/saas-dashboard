@@ -1,8 +1,5 @@
 import MealSlotComponent from './MealSlot';
-import type { DayMeals, MealSlot, DayName } from '../../services/mealPlanService';
-
-/** Meal type for breakfast, lunch, or dinner */
-export type MealType = 'breakfast' | 'lunch' | 'dinner';
+import type { DayMeals, MealSlot, DayName, MealType } from '../../services/mealPlanService';
 
 export interface DayColumnProps {
   dayName: DayName;

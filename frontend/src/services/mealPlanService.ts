@@ -19,6 +19,9 @@ export interface DayMeals {
 /** Day name type for type-safe day access */
 export type DayName = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
+/** Meal type for breakfast, lunch, or dinner */
+export type MealType = 'breakfast' | 'lunch' | 'dinner';
+
 /** Weekly meals structure keyed by day name */
 export type WeeklyMeals = Record<DayName, DayMeals>;
 

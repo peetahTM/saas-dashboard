@@ -132,7 +132,7 @@ class ApiService {
 
       if (!response.ok) {
         const errorCode = data.code || ErrorCodes.INTERNAL_ERROR;
-        const errorMessage = data.message || ErrorMessages[errorCode] || 'An error occurred';
+        const errorMessage = data.message || (errorCode in ErrorMessages ? ErrorMessages[errorCode as keyof typeof ErrorMessages] : 'An error occurred');
 
         // Handle 401 errors
         if (response.status === 401) {

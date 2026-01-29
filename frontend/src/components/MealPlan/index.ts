@@ -5,5 +5,6 @@ export { default as GeneratePlanButton } from './GeneratePlanButton';
 
 // Export props interfaces for reuse
 export type { MealSlotProps } from './MealSlot';
-export type { DayColumnProps, MealType } from './DayColumn';
+export type { DayColumnProps } from './DayColumn';
 export type { WeeklyCalendarProps } from './WeeklyCalendar';
+export type { MealType } from '../../services/mealPlanService';
