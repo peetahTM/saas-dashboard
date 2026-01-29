@@ -19,10 +19,17 @@ const RecipeDetail: React.FC = () => {
         return;
       }
 
+      const recipeId = parseInt(id, 10);
+      if (isNaN(recipeId) || recipeId < 1) {
+        setError('Invalid recipe ID');
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 
-      const response = await recipeService.getRecipe(parseInt(id, 10));
+      const response = await recipeService.getRecipe(recipeId);
 
       if (response.error) {
         setError(response.error);
