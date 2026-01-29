@@ -9,6 +9,7 @@ interface ParsedItemsListProps {
   onChange: (items: ParsedItem[]) => void;
   highlightedIndex?: number | null;
   onItemHover?: (index: number | null) => void;
+  onItemClick?: (index: number) => void;
 }
 
 const CATEGORIES = [
@@ -34,6 +35,7 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({
   onChange,
   highlightedIndex,
   onItemHover,
+  onItemClick,
 }) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -167,7 +169,17 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({
               </div>
             ) : (
               <div className="parsed-items-list__item-view">
-                <div className="parsed-items-list__item-info">
+                <div
+                  className="parsed-items-list__item-info"
+                  onClick={() => onItemClick?.(index)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      onItemClick?.(index);
+                    }
+                  }}
+                >
                   <span className="parsed-items-list__item-name">{item.name || '(unnamed)'}</span>
                   <span className="parsed-items-list__item-details">
                     {item.quantity} {item.unit} &middot; {item.category} &middot; Exp: {item.expiryDate}

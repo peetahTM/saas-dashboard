@@ -283,6 +283,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
               onChange={handleItemsChange}
               highlightedIndex={highlightedIndex}
               onItemHover={setHighlightedIndex}
+              onItemClick={setHighlightedIndex}
             />
           </div>
         </div>

@@ -29,7 +29,9 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
   onItemClick,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const boxRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [imageSize, setImageSize] = useState({ width: 0, height: 0, naturalWidth: 0, naturalHeight: 0 });
 
   useEffect(() => {
@@ -55,6 +57,26 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
     }
   }, [imageUrl]);
 
+  // Scroll to highlighted item when it changes
+  useEffect(() => {
+    if (highlightedIndex !== null && imageContainerRef.current) {
+      const boxElement = boxRefs.current.get(highlightedIndex);
+      if (boxElement) {
+        const container = imageContainerRef.current;
+        const boxRect = boxElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // Check if box is outside visible area
+        const isAbove = boxRect.top < containerRect.top;
+        const isBelow = boxRect.bottom > containerRect.bottom;
+
+        if (isAbove || isBelow) {
+          boxElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+  }, [highlightedIndex]);
+
   const scaleBox = (bbox: BoundingBox) => {
     if (!imageSize.naturalWidth || !imageSize.naturalHeight) return null;
 
@@ -73,7 +95,7 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
 
   return (
     <div className="highlighted-receipt" ref={containerRef}>
-      <div className="highlighted-receipt__image-container">
+      <div className="highlighted-receipt__image-container" ref={imageContainerRef}>
         <img
           ref={imgRef}
           src={imageUrl}
@@ -92,6 +114,9 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
           return (
             <div
               key={idx}
+              ref={(el) => {
+                if (el) boxRefs.current.set(originalIndex, el);
+              }}
               className={`highlighted-receipt__box ${isHighlighted ? 'highlighted-receipt__box--active' : ''}`}
               style={{
                 left: scaledBox.left,

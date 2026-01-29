@@ -312,6 +312,15 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  cursor: pointer;
+  padding: 4px;
+  margin: -4px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.parsed-items-list__item-info:hover {
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .parsed-items-list__item-name {
