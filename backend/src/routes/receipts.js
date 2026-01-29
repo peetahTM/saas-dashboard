@@ -50,10 +50,10 @@ router.post('/upload', authenticateToken, upload.single('receipt'), async (req, 
     const scanId = scanResult.rows[0].id;
 
     // Process the image with OCR
-    const { rawText, confidence } = await ocrService.processReceipt(req.file.buffer);
+    const { rawText, confidence, lines } = await ocrService.processReceipt(req.file.buffer);
 
-    // Parse the OCR text
-    let parsedItems = parseReceiptText(rawText);
+    // Parse the OCR text with line-level bounding box data
+    let parsedItems = parseReceiptText(rawText, lines);
 
     // Match with grocery suggestions for better accuracy
     const suggestionsResult = await pool.query(

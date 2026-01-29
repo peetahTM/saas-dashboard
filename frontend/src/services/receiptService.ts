@@ -3,6 +3,13 @@ import type { ApiResponse } from './api';
 
 import type { StorageLocation } from './groceryService';
 
+export interface BoundingBox {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
 export interface ParsedItem {
   name: string;
   category: string;
@@ -12,6 +19,8 @@ export interface ParsedItem {
   storageLocation?: StorageLocation;
   confidence?: number;
   matchedSuggestionId?: number;
+  lineIndex?: number;
+  bbox?: BoundingBox | null;
 }
 
 export interface ReceiptScan {

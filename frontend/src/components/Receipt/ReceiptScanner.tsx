@@ -3,6 +3,7 @@ import { receiptService, type ParsedItem, type ReceiptScan } from '../../service
 import ReceiptPreview from './ReceiptPreview';
 import ParsedItemsList from './ParsedItemsList';
 import ImageCropper from './ImageCropper';
+import HighlightedReceipt from './HighlightedReceipt';
 import './Receipt.css';
 
 interface ReceiptScannerProps {
@@ -23,6 +24,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
   const [scanResult, setScanResult] = useState<ReceiptScan | null>(null);
   const [editedItems, setEditedItems] = useState<ParsedItem[]>([]);
   const [addedCount, setAddedCount] = useState(0);
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -240,21 +242,50 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     </div>
   );
 
-  const renderReviewStep = () => (
-    <div className="receipt-scanner__review-step">
-      <div className="receipt-scanner__review-header">
-        <h3>Review Items</h3>
-        {scanResult && (
-          <span className="receipt-scanner__confidence">
-            {Math.round(scanResult.confidence || 0)}% confidence
-          </span>
-        )}
-      </div>
-      <p className="receipt-scanner__review-hint">
-        Edit item names, categories, or quantities before adding to your pantry.
-      </p>
+  const handleImageItemClick = (index: number) => {
+    setHighlightedIndex(index);
+    // Scroll to item in list (the ParsedItemsList will handle this via the highlightedIndex prop)
+  };
 
-      <ParsedItemsList items={editedItems} onChange={handleItemsChange} />
+  const renderReviewStep = () => {
+    const hasBboxData = editedItems.some((item) => item.bbox);
+
+    return (
+      <div className="receipt-scanner__review-step">
+        <div className="receipt-scanner__review-header">
+          <h3>Review Items</h3>
+          {scanResult && (
+            <span className="receipt-scanner__confidence">
+              {Math.round(scanResult.confidence || 0)}% confidence
+            </span>
+          )}
+        </div>
+        <p className="receipt-scanner__review-hint">
+          {hasBboxData
+            ? 'Click items on the receipt image or in the list to highlight them. Edit before adding to your pantry.'
+            : 'Edit item names, categories, or quantities before adding to your pantry.'}
+        </p>
+
+        <div className="receipt-scanner__review-content">
+          {hasBboxData && previewUrl && (
+            <div className="receipt-scanner__review-image">
+              <HighlightedReceipt
+                imageUrl={previewUrl}
+                items={editedItems}
+                highlightedIndex={highlightedIndex}
+                onItemClick={handleImageItemClick}
+              />
+            </div>
+          )}
+          <div className="receipt-scanner__review-items">
+            <ParsedItemsList
+              items={editedItems}
+              onChange={handleItemsChange}
+              highlightedIndex={highlightedIndex}
+              onItemHover={setHighlightedIndex}
+            />
+          </div>
+        </div>
 
       <div className="receipt-scanner__review-actions">
         <button
@@ -279,8 +310,9 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
           )}
         </button>
       </div>
-    </div>
-  );
+      </div>
+    );
+  };
 
   const renderSuccessStep = () => (
     <div className="receipt-scanner__success">

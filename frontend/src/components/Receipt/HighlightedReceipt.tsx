@@ -1,0 +1,132 @@
+import { useRef, useEffect, useState } from 'react';
+import type { ParsedItem, BoundingBox } from '../../services/receiptService';
+
+interface HighlightedReceiptProps {
+  imageUrl: string;
+  items: ParsedItem[];
+  highlightedIndex: number | null;
+  onItemClick: (index: number) => void;
+}
+
+function getConfidenceColor(confidence: number | undefined): string {
+  if (!confidence) return 'rgba(156, 163, 175, 0.4)'; // gray
+  if (confidence >= 0.8) return 'rgba(34, 197, 94, 0.4)'; // green
+  if (confidence >= 0.5) return 'rgba(234, 179, 8, 0.4)'; // yellow
+  return 'rgba(239, 68, 68, 0.4)'; // red
+}
+
+function getConfidenceBorderColor(confidence: number | undefined): string {
+  if (!confidence) return 'rgb(156, 163, 175)'; // gray
+  if (confidence >= 0.8) return 'rgb(34, 197, 94)'; // green
+  if (confidence >= 0.5) return 'rgb(234, 179, 8)'; // yellow
+  return 'rgb(239, 68, 68)'; // red
+}
+
+const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
+  imageUrl,
+  items,
+  highlightedIndex,
+  onItemClick,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0, naturalWidth: 0, naturalHeight: 0 });
+
+  useEffect(() => {
+    const updateImageSize = () => {
+      if (imgRef.current) {
+        setImageSize({
+          width: imgRef.current.width,
+          height: imgRef.current.height,
+          naturalWidth: imgRef.current.naturalWidth,
+          naturalHeight: imgRef.current.naturalHeight,
+        });
+      }
+    };
+
+    const img = imgRef.current;
+    if (img) {
+      if (img.complete) {
+        updateImageSize();
+      } else {
+        img.addEventListener('load', updateImageSize);
+        return () => img.removeEventListener('load', updateImageSize);
+      }
+    }
+  }, [imageUrl]);
+
+  const scaleBox = (bbox: BoundingBox) => {
+    if (!imageSize.naturalWidth || !imageSize.naturalHeight) return null;
+
+    const scaleX = imageSize.width / imageSize.naturalWidth;
+    const scaleY = imageSize.height / imageSize.naturalHeight;
+
+    return {
+      left: bbox.x0 * scaleX,
+      top: bbox.y0 * scaleY,
+      width: (bbox.x1 - bbox.x0) * scaleX,
+      height: (bbox.y1 - bbox.y0) * scaleY,
+    };
+  };
+
+  const itemsWithBbox = items.filter((item) => item.bbox);
+
+  return (
+    <div className="highlighted-receipt" ref={containerRef}>
+      <div className="highlighted-receipt__image-container">
+        <img
+          ref={imgRef}
+          src={imageUrl}
+          alt="Receipt with highlighted items"
+          className="highlighted-receipt__image"
+        />
+        {imageSize.width > 0 && itemsWithBbox.map((item, idx) => {
+          const originalIndex = items.indexOf(item);
+          if (!item.bbox) return null;
+
+          const scaledBox = scaleBox(item.bbox);
+          if (!scaledBox) return null;
+
+          const isHighlighted = highlightedIndex === originalIndex;
+
+          return (
+            <div
+              key={idx}
+              className={`highlighted-receipt__box ${isHighlighted ? 'highlighted-receipt__box--active' : ''}`}
+              style={{
+                left: scaledBox.left,
+                top: scaledBox.top,
+                width: scaledBox.width,
+                height: scaledBox.height,
+                backgroundColor: isHighlighted
+                  ? 'rgba(59, 130, 246, 0.3)'
+                  : getConfidenceColor(item.confidence),
+                borderColor: isHighlighted
+                  ? 'rgb(59, 130, 246)'
+                  : getConfidenceBorderColor(item.confidence),
+              }}
+              onClick={() => onItemClick(originalIndex)}
+              title={`${item.name} (${Math.round((item.confidence || 0) * 100)}% confidence)`}
+            />
+          );
+        })}
+      </div>
+      <div className="highlighted-receipt__legend">
+        <span className="highlighted-receipt__legend-item">
+          <span className="highlighted-receipt__legend-color highlighted-receipt__legend-color--high" />
+          High confidence
+        </span>
+        <span className="highlighted-receipt__legend-item">
+          <span className="highlighted-receipt__legend-color highlighted-receipt__legend-color--medium" />
+          Medium
+        </span>
+        <span className="highlighted-receipt__legend-item">
+          <span className="highlighted-receipt__legend-color highlighted-receipt__legend-color--low" />
+          Low
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default HighlightedReceipt;

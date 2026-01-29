@@ -287,6 +287,17 @@
   background-color: #f9fafb;
   border-radius: 8px;
   padding: 12px;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.parsed-items-list__item:hover {
+  background-color: #f3f4f6;
+}
+
+.parsed-items-list__item--highlighted {
+  background-color: #dbeafe;
+  box-shadow: 0 0 0 2px #3b82f6;
 }
 
 .parsed-items-list__item-view {
@@ -497,4 +508,103 @@
 
 .receipt-scanner__crop-step {
   min-height: 300px;
+}
+
+/* Highlighted Receipt */
+.highlighted-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.highlighted-receipt__image-container {
+  position: relative;
+  display: inline-block;
+  max-height: 300px;
+  overflow: auto;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.highlighted-receipt__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.highlighted-receipt__box {
+  position: absolute;
+  border: 2px solid;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.highlighted-receipt__box:hover,
+.highlighted-receipt__box--active {
+  z-index: 10;
+  transform: scale(1.02);
+}
+
+.highlighted-receipt__legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.highlighted-receipt__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.highlighted-receipt__legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.highlighted-receipt__legend-color--high {
+  background-color: rgba(34, 197, 94, 0.4);
+  border-color: rgb(34, 197, 94);
+}
+
+.highlighted-receipt__legend-color--medium {
+  background-color: rgba(234, 179, 8, 0.4);
+  border-color: rgb(234, 179, 8);
+}
+
+.highlighted-receipt__legend-color--low {
+  background-color: rgba(239, 68, 68, 0.4);
+  border-color: rgb(239, 68, 68);
+}
+
+/* Review step with side-by-side layout */
+.receipt-scanner__review-content {
+  display: flex;
+  gap: 16px;
+}
+
+.receipt-scanner__review-image {
+  flex: 0 0 200px;
+  max-width: 200px;
+}
+
+.receipt-scanner__review-items {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .receipt-scanner__review-content {
+    flex-direction: column;
+  }
+
+  .receipt-scanner__review-image {
+    flex: none;
+    max-width: 100%;
+  }
 }

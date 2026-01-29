@@ -7,6 +7,8 @@ import StorageLocationBadge from '../Groceries/StorageLocationBadge';
 interface ParsedItemsListProps {
   items: ParsedItem[];
   onChange: (items: ParsedItem[]) => void;
+  highlightedIndex?: number | null;
+  onItemHover?: (index: number | null) => void;
 }
 
 const CATEGORIES = [
@@ -27,7 +29,12 @@ const STORAGE_LOCATIONS: { value: StorageLocation; label: string }[] = [
   { value: 'pantry', label: 'Pantry' },
 ];
 
-const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) => {
+const ParsedItemsList: React.FC<ParsedItemsListProps> = ({
+  items,
+  onChange,
+  highlightedIndex,
+  onItemHover,
+}) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleItemChange = (index: number, field: keyof ParsedItem, value: string | number) => {
@@ -84,7 +91,12 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) =>
     <div className="parsed-items-list">
       <div className="parsed-items-list__items">
         {items.map((item, index) => (
-          <div key={index} className="parsed-items-list__item">
+          <div
+            key={index}
+            className={`parsed-items-list__item ${highlightedIndex === index ? 'parsed-items-list__item--highlighted' : ''}`}
+            onMouseEnter={() => onItemHover?.(index)}
+            onMouseLeave={() => onItemHover?.(null)}
+          >
             {editingIndex === index ? (
               <div className="parsed-items-list__item-edit">
                 <input
