@@ -41,27 +41,36 @@ const GroceryAutocomplete: React.FC<GroceryAutocompleteProps> = ({
     if (value.length < 2) {
       setSuggestions([]);
       setIsOpen(false);
+      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
 
-    debounceRef.current = window.setTimeout(async () => {
-      const response = await groceryService.getSuggestions(value);
+    // Track whether the effect is still active to prevent race conditions
+    let isActive = true;
+    const currentValue = value;
 
-      if (response.data) {
+    debounceRef.current = window.setTimeout(async () => {
+      const response = await groceryService.getSuggestions(currentValue);
+
+      // Only update state if this effect is still active and value hasn't changed
+      if (isActive && response.data) {
         setSuggestions(response.data);
         setIsOpen(response.data.length > 0);
         setHighlightedIndex(-1);
-      } else {
+      } else if (isActive) {
         setSuggestions([]);
         setIsOpen(false);
       }
 
-      setIsLoading(false);
+      if (isActive) {
+        setIsLoading(false);
+      }
     }, 300);
 
     return () => {
+      isActive = false;
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
       }

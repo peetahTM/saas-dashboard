@@ -5,6 +5,53 @@ import { CommonErrors } from '../utils/errorResponse.js';
 
 const router = express.Router();
 
+// Valid storage location values
+const VALID_STORAGE_LOCATIONS = ['fridge', 'freezer', 'pantry'];
+
+/**
+ * GET /api/groceries/suggestions
+ * Search grocery suggestions for autocomplete
+ * Query: ?q=search_term
+ * NOTE: This route MUST be defined before /:id routes to avoid "suggestions" being treated as an ID
+ */
+router.get('/suggestions', authenticateToken, async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    let result;
+    if (q && q.trim()) {
+      result = await pool.query(
+        `SELECT id, name, category, default_expiry_days, default_storage_location
+         FROM grocery_suggestions
+         WHERE LOWER(name) LIKE LOWER($1)
+         ORDER BY name ASC
+         LIMIT 20`,
+        [`%${q.trim()}%`]
+      );
+    } else {
+      result = await pool.query(
+        `SELECT id, name, category, default_expiry_days, default_storage_location
+         FROM grocery_suggestions
+         ORDER BY name ASC
+         LIMIT 20`
+      );
+    }
+
+    res.json({
+      suggestions: result.rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        category: row.category,
+        defaultExpiryDays: row.default_expiry_days,
+        defaultStorageLocation: row.default_storage_location
+      }))
+    });
+  } catch (error) {
+    console.error('[Groceries] Get suggestions error:', error.message);
+    res.status(500).json(CommonErrors.internalError('load grocery suggestions'));
+  }
+});
+
 /**
  * GET /api/groceries
  * List user's groceries (not consumed)
@@ -56,6 +103,33 @@ router.post('/', authenticateToken, async (req, res) => {
       );
     }
 
+    if (quantity !== undefined && (isNaN(quantity) || quantity <= 0)) {
+      return res.status(400).json(
+        CommonErrors.validationError(
+          'Quantity must be a positive number.',
+          { field: 'quantity' }
+        )
+      );
+    }
+
+    if (expiryDate && isNaN(Date.parse(expiryDate))) {
+      return res.status(400).json(
+        CommonErrors.validationError(
+          'Invalid expiry date format.',
+          { field: 'expiryDate' }
+        )
+      );
+    }
+
+    if (storageLocation && !VALID_STORAGE_LOCATIONS.includes(storageLocation)) {
+      return res.status(400).json(
+        CommonErrors.validationError(
+          'Invalid storage location. Must be one of: fridge, freezer, pantry.',
+          { field: 'storageLocation' }
+        )
+      );
+    }
+
     const result = await pool.query(
       `INSERT INTO groceries (user_id, name, category, quantity, unit, expiry_date, storage_location)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -94,6 +168,33 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, category, quantity, unit, expiryDate, storageLocation } = req.body;
+
+    if (quantity !== undefined && (isNaN(quantity) || quantity <= 0)) {
+      return res.status(400).json(
+        CommonErrors.validationError(
+          'Quantity must be a positive number.',
+          { field: 'quantity' }
+        )
+      );
+    }
+
+    if (expiryDate && isNaN(Date.parse(expiryDate))) {
+      return res.status(400).json(
+        CommonErrors.validationError(
+          'Invalid expiry date format.',
+          { field: 'expiryDate' }
+        )
+      );
+    }
+
+    if (storageLocation && !VALID_STORAGE_LOCATIONS.includes(storageLocation)) {
+      return res.status(400).json(
+        CommonErrors.validationError(
+          'Invalid storage location. Must be one of: fridge, freezer, pantry.',
+          { field: 'storageLocation' }
+        )
+      );
+    }
 
     // Check if grocery exists and belongs to user
     const checkResult = await pool.query(
@@ -205,49 +306,6 @@ router.post('/:id/consume', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('[Groceries] Consume grocery error:', error.message);
     res.status(500).json(CommonErrors.internalError('mark the item as consumed'));
-  }
-});
-
-/**
- * GET /api/groceries/suggestions
- * Search grocery suggestions for autocomplete
- * Query: ?q=search_term
- */
-router.get('/suggestions', async (req, res) => {
-  try {
-    const { q } = req.query;
-
-    let result;
-    if (q && q.trim()) {
-      result = await pool.query(
-        `SELECT id, name, category, default_expiry_days, default_storage_location
-         FROM grocery_suggestions
-         WHERE LOWER(name) LIKE LOWER($1)
-         ORDER BY name ASC
-         LIMIT 20`,
-        [`%${q.trim()}%`]
-      );
-    } else {
-      result = await pool.query(
-        `SELECT id, name, category, default_expiry_days, default_storage_location
-         FROM grocery_suggestions
-         ORDER BY name ASC
-         LIMIT 20`
-      );
-    }
-
-    res.json({
-      suggestions: result.rows.map(row => ({
-        id: row.id,
-        name: row.name,
-        category: row.category,
-        defaultExpiryDays: row.default_expiry_days,
-        defaultStorageLocation: row.default_storage_location
-      }))
-    });
-  } catch (error) {
-    console.error('[Groceries] Get suggestions error:', error.message);
-    res.status(500).json(CommonErrors.internalError('load grocery suggestions'));
   }
 });
 

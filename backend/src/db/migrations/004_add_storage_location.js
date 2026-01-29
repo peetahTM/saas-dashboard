@@ -25,7 +25,7 @@ export const up = async (client) => {
     WHERE default_storage_location IS NULL;
   `);
 
-  // Update existing groceries with storage locations based on category
+  // Update existing groceries with storage locations based on category (only for NULL values)
   await client.query(`
     UPDATE groceries
     SET storage_location = CASE
@@ -33,7 +33,7 @@ export const up = async (client) => {
       WHEN LOWER(category) = 'frozen' THEN 'freezer'
       ELSE 'pantry'
     END
-    WHERE storage_location IS NULL OR storage_location = 'pantry';
+    WHERE storage_location IS NULL;
   `);
 
   console.log('Migration 004: Added storage_location columns');
