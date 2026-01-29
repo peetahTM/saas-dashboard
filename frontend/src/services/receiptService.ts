@@ -1,6 +1,18 @@
 import { api } from './api';
 import type { ApiResponse } from './api';
 
+export interface BoundingBox {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
+export interface ImageDimensions {
+  width: number;
+  height: number;
+}
+
 export interface ParsedItem {
   name: string;
   category: string;
@@ -9,6 +21,8 @@ export interface ParsedItem {
   expiryDate: string;
   confidence?: number;
   matchedSuggestionId?: number;
+  lineIndex?: number;
+  bbox?: BoundingBox | null;
 }
 
 export interface ReceiptScan {
@@ -16,6 +30,7 @@ export interface ReceiptScan {
   confidence: number | null;
   itemCount: number;
   items: ParsedItem[];
+  imageDimensions?: ImageDimensions;
 }
 
 export interface ReceiptScanSummary {
@@ -33,11 +48,6 @@ export interface ReceiptScanDetail {
   rawText: string;
   items: ParsedItem[];
   createdAt: string;
-}
-
-interface UploadResponse {
-  message: string;
-  scan: ReceiptScan;
 }
 
 interface ConfirmResponse {
@@ -91,7 +101,7 @@ class ReceiptService {
       }
 
       return { data: data.scan };
-    } catch (error) {
+    } catch {
       return { error: 'Failed to upload receipt. Please check your connection.' };
     }
   }

@@ -49,11 +49,14 @@ router.post('/upload', authenticateToken, upload.single('receipt'), async (req, 
 
     const scanId = scanResult.rows[0].id;
 
-    // Process the image with OCR
-    const { rawText, confidence } = await ocrService.processReceipt(req.file.buffer);
+    // Process the image with OCR (returns processed dimensions for accurate bbox scaling)
+    const { rawText, confidence, lines, processedDimensions } = await ocrService.processReceipt(req.file.buffer);
 
-    // Parse the OCR text
-    let parsedItems = parseReceiptText(rawText);
+    // Use processed dimensions since bboxes are relative to the processed image
+    const imageDimensions = processedDimensions;
+
+    // Parse the OCR text with line data for bounding boxes
+    let parsedItems = parseReceiptText(rawText, lines);
 
     // Match with grocery suggestions for better accuracy
     const suggestionsResult = await pool.query(
@@ -76,6 +79,7 @@ router.post('/upload', authenticateToken, upload.single('receipt'), async (req, 
         confidence,
         itemCount: parsedItems.length,
         items: parsedItems,
+        imageDimensions,
       },
     });
   } catch (error) {

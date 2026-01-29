@@ -146,14 +146,16 @@ function calculateExpiryDate(category) {
 /**
  * Parse OCR text and extract grocery items
  * @param {string} ocrText - Raw text from OCR
- * @returns {Array<{name: string, category: string, quantity: number, unit: string, expiryDate: string}>}
+ * @param {Array} ocrLines - Optional array of line objects with bounding boxes from OCR
+ * @returns {Array<{name: string, category: string, quantity: number, unit: string, expiryDate: string, lineIndex?: number, bbox?: object}>}
  */
-export function parseReceiptText(ocrText) {
-  const lines = ocrText.split('\n');
+export function parseReceiptText(ocrText, ocrLines = null) {
+  const textLines = ocrText.split('\n');
   const items = [];
   const seenNames = new Set();
 
-  for (const line of lines) {
+  for (let i = 0; i < textLines.length; i++) {
+    const line = textLines[i];
     if (!isLikelyGroceryItem(line)) continue;
 
     const name = cleanItemName(line);
@@ -166,13 +168,19 @@ export function parseReceiptText(ocrText) {
     const category = determineCategory(name);
     const expiryDate = calculateExpiryDate(category);
 
+    // Find matching OCR line by index to get bounding box
+    const ocrLine = ocrLines ? ocrLines[i] : null;
+    const lineConfidence = ocrLine?.confidence ?? 80;
+
     items.push({
       name,
       category,
       quantity,
       unit,
       expiryDate,
-      confidence: 0.8, // Default confidence for parsed items
+      confidence: lineConfidence / 100, // Normalize to 0-1 range
+      lineIndex: i,
+      bbox: ocrLine?.bbox || null,
     });
   }
 
@@ -207,6 +215,9 @@ export function matchWithSuggestions(parsedItems, suggestions) {
         expiryDate: expiryDate.toISOString().split('T')[0],
         matchedSuggestionId: match.id,
         confidence: 0.95,
+        // Preserve bbox and lineIndex from original item
+        lineIndex: item.lineIndex,
+        bbox: item.bbox,
       };
     }
 

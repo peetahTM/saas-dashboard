@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ParsedItem } from '../../services/receiptService';
 
 interface ParsedItemsListProps {
   items: ParsedItem[];
   onChange: (items: ParsedItem[]) => void;
+  highlightedIndex?: number | null;
+  onItemHover?: (index: number | null) => void;
+  scrollToIndex?: number | null;
 }
 
 const CATEGORIES = [
@@ -18,8 +21,25 @@ const CATEGORIES = [
   'other',
 ];
 
-const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) => {
+const ParsedItemsList: React.FC<ParsedItemsListProps> = ({
+  items,
+  onChange,
+  highlightedIndex = null,
+  onItemHover,
+  scrollToIndex = null,
+}) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Scroll to item when scrollToIndex changes
+  useEffect(() => {
+    if (scrollToIndex !== null && itemRefs.current[scrollToIndex]) {
+      itemRefs.current[scrollToIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [scrollToIndex]);
 
   const handleItemChange = (index: number, field: keyof ParsedItem, value: string | number) => {
     const updatedItems = [...items];
@@ -70,7 +90,13 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) =>
     <div className="parsed-items-list">
       <div className="parsed-items-list__items">
         {items.map((item, index) => (
-          <div key={index} className="parsed-items-list__item">
+          <div
+            key={index}
+            ref={(el) => { itemRefs.current[index] = el; }}
+            className={`parsed-items-list__item${highlightedIndex === index ? ' parsed-items-list__item--highlighted' : ''}`}
+            onMouseEnter={() => onItemHover?.(index)}
+            onMouseLeave={() => onItemHover?.(null)}
+          >
             {editingIndex === index ? (
               <div className="parsed-items-list__item-edit">
                 <input
