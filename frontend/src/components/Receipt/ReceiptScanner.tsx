@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { receiptService, type ParsedItem, type ReceiptScan } from '../../services/receiptService';
 import ReceiptPreview from './ReceiptPreview';
 import ParsedItemsList from './ParsedItemsList';
+import ImageCropper from './ImageCropper';
 import './Receipt.css';
 
 interface ReceiptScannerProps {
@@ -9,12 +10,14 @@ interface ReceiptScannerProps {
   onClose: () => void;
 }
 
-type ScannerStep = 'capture' | 'preview' | 'review' | 'success';
+type ScannerStep = 'capture' | 'crop' | 'preview' | 'review' | 'success';
 
 const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }) => {
   const [step, setStep] = useState<ScannerStep>('capture');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ReceiptScan | null>(null);
@@ -46,8 +49,32 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     }
 
     setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setOriginalPreviewUrl(url);
+    setPreviewUrl(url);
     setError(null);
+    setStep('crop');
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const croppedFileObj = new File([croppedBlob], selectedFile?.name || 'cropped-receipt.jpg', {
+      type: 'image/jpeg',
+    });
+    setCroppedFile(croppedFileObj);
+
+    // Revoke old preview URL if different from original
+    if (previewUrl && previewUrl !== originalPreviewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    const newPreviewUrl = URL.createObjectURL(croppedBlob);
+    setPreviewUrl(newPreviewUrl);
+    setStep('preview');
+  };
+
+  const handleSkipCrop = () => {
+    setCroppedFile(null);
+    setPreviewUrl(originalPreviewUrl);
     setStep('preview');
   };
 
@@ -60,12 +87,13 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
   };
 
   const handleProcessReceipt = async () => {
-    if (!selectedFile) return;
+    const fileToUpload = croppedFile || selectedFile;
+    if (!fileToUpload) return;
 
     setIsProcessing(true);
     setError(null);
 
-    const result = await receiptService.uploadReceipt(selectedFile);
+    const result = await receiptService.uploadReceipt(fileToUpload);
 
     setIsProcessing(false);
 
@@ -82,11 +110,16 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
   };
 
   const handleRetake = () => {
-    if (previewUrl) {
+    if (previewUrl && previewUrl !== originalPreviewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
+    if (originalPreviewUrl) {
+      URL.revokeObjectURL(originalPreviewUrl);
+    }
     setSelectedFile(null);
+    setCroppedFile(null);
     setPreviewUrl(null);
+    setOriginalPreviewUrl(null);
     setScanResult(null);
     setEditedItems([]);
     setError(null);
@@ -163,6 +196,18 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
         onChange={handleFileSelect}
         style={{ display: 'none' }}
       />
+    </div>
+  );
+
+  const renderCropStep = () => (
+    <div className="receipt-scanner__crop-step">
+      {originalPreviewUrl && (
+        <ImageCropper
+          imageUrl={originalPreviewUrl}
+          onCropComplete={handleCropComplete}
+          onSkip={handleSkipCrop}
+        />
+      )}
     </div>
   );
 
@@ -283,6 +328,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
 
       <div className="receipt-scanner__content">
         {step === 'capture' && renderCaptureStep()}
+        {step === 'crop' && renderCropStep()}
         {step === 'preview' && renderPreviewStep()}
         {step === 'review' && renderReviewStep()}
         {step === 'success' && renderSuccessStep()}
