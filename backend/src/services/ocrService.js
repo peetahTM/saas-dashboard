@@ -55,8 +55,8 @@ class OcrService {
       // Preprocess the image
       const processedImage = await this.preprocessImage(imageBuffer);
 
-      // Run OCR with English language
-      const result = await Tesseract.recognize(processedImage, 'eng', {
+      // Run OCR with English and Swedish language support
+      const result = await Tesseract.recognize(processedImage, 'eng+swe', {
         logger: (info) => {
           if (info.status === 'recognizing text') {
             console.log(`[OCR] Progress: ${Math.round(info.progress * 100)}%`);

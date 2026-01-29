@@ -2,34 +2,89 @@
  * Receipt Parser - Extracts grocery items from OCR text
  */
 
-// Common receipt patterns
-const PRICE_PATTERN = /\$?\d+\.\d{2}/;
-const QUANTITY_PATTERN = /^(\d+(?:\.\d+)?)\s*(x|@|\*)?/i;
-const WEIGHT_PATTERN = /(\d+(?:\.\d+)?)\s*(lb|lbs|oz|kg|g)\b/i;
+// Common receipt patterns (supports both US and Swedish formats)
+const PRICE_PATTERN = /\$?\d+[.,]\d{2}|\d+\s*(?:kr|:-)/i;
+const QUANTITY_PATTERN = /^(\d+(?:[.,]\d+)?)\s*(x|@|\*|st)?/i;
+const WEIGHT_PATTERN = /(\d+(?:[.,]\d+)?)\s*(lb|lbs|oz|kg|g)\b/i;
 
 // Common words to filter out (not grocery items)
 const FILTER_WORDS = new Set([
+  // English
   'total', 'subtotal', 'tax', 'change', 'cash', 'credit', 'debit',
   'card', 'visa', 'mastercard', 'amex', 'thank', 'thanks', 'welcome',
   'receipt', 'store', 'address', 'phone', 'tel', 'date', 'time',
   'cashier', 'register', 'transaction', 'balance', 'savings', 'discount',
   'coupon', 'member', 'points', 'rewards', 'loyalty', 'approved',
+  // Swedish
+  'totalt', 'summa', 'moms', 'kontant', 'kort', 'kvitto', 'butik',
+  'tack', 'välkommen', 'datum', 'tid', 'kassör', 'rabatt', 'bonus',
+  'medlem', 'poäng', 'saldo', 'betalning', 'ändring', 'öppet', 'stängt',
+  // Common Swedish store names
+  'willys', 'ica', 'coop', 'hemköp', 'lidl', 'netto', 'city gross',
+  // Common US store names
+  'walmart', 'target', 'kroger', 'safeway', 'publix', 'whole foods',
+  'trader joe', 'costco', 'aldi', 'wegmans', 'heb',
 ]);
 
-// Category mappings based on keywords
+// Category mappings based on keywords (English and Swedish)
+// Note: Order matters - meat is checked before dairy to avoid false matches like "kycklingfilé" matching "fil"
 const CATEGORY_KEYWORDS = {
-  produce: ['apple', 'banana', 'orange', 'tomato', 'lettuce', 'carrot', 'onion',
-            'potato', 'broccoli', 'spinach', 'pepper', 'cucumber', 'avocado',
-            'grape', 'strawberry', 'blueberry', 'lemon', 'lime', 'celery', 'garlic'],
-  dairy: ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg', 'eggs'],
-  meat: ['chicken', 'beef', 'pork', 'turkey', 'bacon', 'sausage', 'ham',
-         'steak', 'ground', 'fish', 'salmon', 'tuna', 'shrimp'],
-  bakery: ['bread', 'bagel', 'muffin', 'croissant', 'roll', 'bun', 'cake', 'donut'],
-  pantry: ['rice', 'pasta', 'cereal', 'flour', 'sugar', 'oil', 'salt', 'pepper',
-           'sauce', 'soup', 'can', 'beans', 'coffee', 'tea'],
-  frozen: ['frozen', 'ice cream', 'pizza', 'fries'],
-  beverages: ['water', 'juice', 'soda', 'cola', 'beer', 'wine', 'drink'],
-  snacks: ['chips', 'crackers', 'cookies', 'candy', 'chocolate', 'nuts'],
+  produce: [
+    // English
+    'apple', 'banana', 'orange', 'tomato', 'lettuce', 'carrot', 'onion',
+    'potato', 'broccoli', 'spinach', 'pepper', 'cucumber', 'avocado',
+    'grape', 'strawberry', 'blueberry', 'lemon', 'lime', 'celery', 'garlic',
+    // Swedish
+    'äpple', 'banan', 'apelsin', 'tomat', 'sallad', 'morot', 'lök',
+    'potatis', 'broccoli', 'spenat', 'paprika', 'gurka', 'avokado',
+    'vindruva', 'jordgubb', 'blåbär', 'citron', 'lime', 'selleri', 'vitlök',
+  ],
+  meat: [
+    // English
+    'chicken', 'beef', 'pork', 'turkey', 'bacon', 'sausage', 'ham',
+    'steak', 'ground', 'fish', 'salmon', 'tuna', 'shrimp',
+    // Swedish
+    'kyckling', 'nötkött', 'fläsk', 'kalkon', 'bacon', 'korv', 'skinka',
+    'biff', 'färs', 'fisk', 'lax', 'tonfisk', 'räkor', 'köttbullar', 'filé',
+  ],
+  dairy: [
+    // English
+    'milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg', 'eggs',
+    // Swedish
+    'mjölk', 'ost', 'yoghurt', 'smör', 'grädde', 'ägg', 'filmjölk', 'kvarg',
+  ],
+  bakery: [
+    // English
+    'bread', 'bagel', 'muffin', 'croissant', 'roll', 'bun', 'cake', 'donut',
+    // Swedish
+    'bröd', 'bulle', 'muffin', 'croissant', 'fralla', 'kaka', 'munk', 'kanelbulle',
+  ],
+  pantry: [
+    // English
+    'rice', 'pasta', 'cereal', 'flour', 'sugar', 'oil', 'salt', 'pepper',
+    'sauce', 'soup', 'can', 'beans', 'coffee', 'tea',
+    // Swedish
+    'ris', 'pasta', 'flingor', 'mjöl', 'socker', 'olja', 'salt', 'peppar',
+    'sås', 'soppa', 'konserv', 'bönor', 'kaffe', 'te', 'müsli',
+  ],
+  frozen: [
+    // English
+    'frozen', 'ice cream', 'pizza', 'fries',
+    // Swedish
+    'fryst', 'glass', 'pizza', 'pommes', 'frysta',
+  ],
+  beverages: [
+    // English
+    'water', 'juice', 'soda', 'cola', 'beer', 'wine', 'drink',
+    // Swedish
+    'vatten', 'juice', 'läsk', 'cola', 'öl', 'vin', 'dryck', 'mineralvatten',
+  ],
+  snacks: [
+    // English
+    'chips', 'crackers', 'cookies', 'candy', 'chocolate', 'nuts',
+    // Swedish
+    'chips', 'kex', 'kakor', 'godis', 'choklad', 'nötter', 'popcorn',
+  ],
 };
 
 // Default expiry days by category
@@ -45,12 +100,32 @@ const DEFAULT_EXPIRY_DAYS = {
   other: 14,
 };
 
+// Default storage location by category
+const DEFAULT_STORAGE_LOCATIONS = {
+  produce: 'fridge',
+  dairy: 'fridge',
+  meat: 'fridge',
+  beverages: 'fridge',
+  frozen: 'freezer',
+  bakery: 'pantry',
+  pantry: 'pantry',
+  snacks: 'pantry',
+  other: 'pantry',
+};
+
 /**
- * Clean and normalize text
+ * Get storage location based on category
+ */
+function getStorageLocation(category) {
+  return DEFAULT_STORAGE_LOCATIONS[category] || DEFAULT_STORAGE_LOCATIONS.other;
+}
+
+/**
+ * Clean and normalize text (supports Swedish characters)
  */
 function cleanText(text) {
   return text
-    .replace(/[^\w\s\$\.\-]/g, ' ')
+    .replace(/[^\w\s\$\.\-äöåÄÖÅéÉ]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -65,8 +140,8 @@ function isLikelyGroceryItem(line) {
   // Skip very short lines
   if (cleaned.length < 3) return false;
 
-  // Skip lines that are mostly numbers
-  const letterCount = (cleaned.match(/[a-z]/g) || []).length;
+  // Skip lines that are mostly numbers (supports Swedish characters äöåé)
+  const letterCount = (cleaned.match(/[a-zäöåé]/g) || []).length;
   if (letterCount < 2) return false;
 
   // Skip lines with filter words
@@ -118,14 +193,15 @@ function extractQuantity(text) {
 }
 
 /**
- * Clean up item name
+ * Clean up item name (supports Swedish characters)
  */
 function cleanItemName(text) {
   return text
     .replace(PRICE_PATTERN, '')
     .replace(QUANTITY_PATTERN, '')
     .replace(WEIGHT_PATTERN, '')
-    .replace(/[^\w\s\-]/g, ' ')
+    .replace(/\b(kr|:-)\b/gi, '') // Remove Swedish currency markers
+    .replace(/[^\w\s\-äöåÄÖÅéÉ]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .split(' ')
@@ -146,14 +222,16 @@ function calculateExpiryDate(category) {
 /**
  * Parse OCR text and extract grocery items
  * @param {string} ocrText - Raw text from OCR
- * @returns {Array<{name: string, category: string, quantity: number, unit: string, expiryDate: string}>}
+ * @param {Array} ocrLines - Optional array of line objects with bounding boxes from OCR
+ * @returns {Array<{name: string, category: string, quantity: number, unit: string, expiryDate: string, lineIndex?: number, bbox?: object}>}
  */
-export function parseReceiptText(ocrText) {
-  const lines = ocrText.split('\n');
+export function parseReceiptText(ocrText, ocrLines = null) {
+  const textLines = ocrText.split('\n');
   const items = [];
   const seenNames = new Set();
 
-  for (const line of lines) {
+  for (let i = 0; i < textLines.length; i++) {
+    const line = textLines[i];
     if (!isLikelyGroceryItem(line)) continue;
 
     const name = cleanItemName(line);
@@ -166,13 +244,20 @@ export function parseReceiptText(ocrText) {
     const category = determineCategory(name);
     const expiryDate = calculateExpiryDate(category);
 
+    // Find matching OCR line by index to get bounding box
+    const ocrLine = ocrLines ? ocrLines[i] : null;
+    const lineConfidence = ocrLine?.confidence ?? 80;
+
     items.push({
       name,
       category,
       quantity,
       unit,
       expiryDate,
-      confidence: 0.8, // Default confidence for parsed items
+      storageLocation: getStorageLocation(category),
+      confidence: lineConfidence / 100, // Normalize to 0-1 range
+      lineIndex: i,
+      bbox: ocrLine?.bbox || null,
     });
   }
 
@@ -200,13 +285,19 @@ export function matchWithSuggestions(parsedItems, suggestions) {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + (match.default_expiry_days || 14));
 
+      const category = match.category || item.category;
+
       return {
         ...item,
         name: match.name,
-        category: match.category || item.category,
+        category,
         expiryDate: expiryDate.toISOString().split('T')[0],
+        storageLocation: match.default_storage_location || getStorageLocation(category),
         matchedSuggestionId: match.id,
         confidence: 0.95,
+        // Preserve bbox and lineIndex from original item
+        lineIndex: item.lineIndex,
+        bbox: item.bbox,
       };
     }
 

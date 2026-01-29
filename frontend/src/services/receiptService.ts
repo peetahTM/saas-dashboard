@@ -1,12 +1,15 @@
 import { api } from './api';
 import type { ApiResponse } from './api';
 
+import type { StorageLocation } from './groceryService';
+
 export interface ParsedItem {
   name: string;
   category: string;
   quantity: number;
   unit: string;
   expiryDate: string;
+  storageLocation?: StorageLocation;
   confidence?: number;
   matchedSuggestionId?: number;
 }

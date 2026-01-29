@@ -2,7 +2,7 @@
 
 ## Task 5: Test and Fix Pantry and Recipes Pages
 
-**Status:** in_progress
+**Status:** completed
 
 ### Tasks:
 1. Test Pantry page (`frontend/src/pages/Pantry.tsx`):
@@ -71,7 +71,7 @@ Allow users to optionally crop receipt images before OCR processing to improve a
 
 ## Task 8: Highlight Detected Areas on Receipt Image
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Show users which areas of the receipt were detected by OCR, with clickable regions that scroll to corresponding items in the review list.
@@ -123,7 +123,7 @@ Show users which areas of the receipt were detected by OCR, with clickable regio
 
 ## Task 9: Add Storage Location for Groceries
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Allow users to organize groceries by storage location (fridge, freezer, pantry) with auto-suggestion based on category.
@@ -193,7 +193,7 @@ Allow users to organize groceries by storage location (fridge, freezer, pantry) 
 
 ## Task 10: Add Swedish Language Support for Receipt Scanner
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Enable OCR and categorization to work with Swedish receipts.
