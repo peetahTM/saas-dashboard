@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import type { ParsedItem } from '../../services/receiptService';
+import type { StorageLocation } from '../../services/groceryService';
+import { getDefaultStorageLocation } from '../../services/groceryService';
+import StorageLocationBadge from '../Groceries/StorageLocationBadge';
 
 interface ParsedItemsListProps {
   items: ParsedItem[];
@@ -18,6 +21,12 @@ const CATEGORIES = [
   'other',
 ];
 
+const STORAGE_LOCATIONS: { value: StorageLocation; label: string }[] = [
+  { value: 'fridge', label: 'Fridge' },
+  { value: 'freezer', label: 'Freezer' },
+  { value: 'pantry', label: 'Pantry' },
+];
+
 const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -27,6 +36,10 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) =>
       ...updatedItems[index],
       [field]: value,
     };
+    // Auto-update storage location when category changes
+    if (field === 'category') {
+      updatedItems[index].storageLocation = getDefaultStorageLocation(value as string);
+    }
     onChange(updatedItems);
   };
 
@@ -45,6 +58,7 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) =>
       quantity: 1,
       unit: 'each',
       expiryDate: today.toISOString().split('T')[0],
+      storageLocation: 'pantry',
     };
 
     onChange([...items, newItem]);
@@ -118,6 +132,20 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) =>
                     className="parsed-items-list__input"
                   />
                 </div>
+                <div className="parsed-items-list__item-row">
+                  <label className="parsed-items-list__label">Storage:</label>
+                  <select
+                    value={item.storageLocation || 'pantry'}
+                    onChange={(e) => handleItemChange(index, 'storageLocation', e.target.value)}
+                    className="parsed-items-list__select"
+                  >
+                    {STORAGE_LOCATIONS.map((loc) => (
+                      <option key={loc.value} value={loc.value}>
+                        {loc.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <button
                   className="parsed-items-list__done-btn"
                   onClick={() => setEditingIndex(null)}
@@ -132,6 +160,7 @@ const ParsedItemsList: React.FC<ParsedItemsListProps> = ({ items, onChange }) =>
                   <span className="parsed-items-list__item-details">
                     {item.quantity} {item.unit} &middot; {item.category} &middot; Exp: {item.expiryDate}
                   </span>
+                  <StorageLocationBadge location={item.storageLocation || 'pantry'} size="small" />
                 </div>
                 <div className="parsed-items-list__item-actions">
                   <button

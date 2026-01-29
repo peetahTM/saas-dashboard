@@ -57,7 +57,7 @@ router.post('/upload', authenticateToken, upload.single('receipt'), async (req, 
 
     // Match with grocery suggestions for better accuracy
     const suggestionsResult = await pool.query(
-      'SELECT id, name, category, default_expiry_days FROM grocery_suggestions'
+      'SELECT id, name, category, default_expiry_days, default_storage_location FROM grocery_suggestions'
     );
     parsedItems = matchWithSuggestions(parsedItems, suggestionsResult.rows);
 
@@ -124,10 +124,10 @@ router.post('/:id/confirm', authenticateToken, async (req, res) => {
     const addedItems = [];
     for (const item of items) {
       const result = await client.query(
-        `INSERT INTO groceries (user_id, name, category, quantity, unit, expiry_date)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id, name, category, quantity, unit, expiry_date, is_consumed, created_at`,
-        [req.user.id, item.name, item.category, item.quantity || 1, item.unit || 'each', item.expiryDate]
+        `INSERT INTO groceries (user_id, name, category, quantity, unit, expiry_date, storage_location)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, name, category, quantity, unit, expiry_date, is_consumed, storage_location, created_at`,
+        [req.user.id, item.name, item.category, item.quantity || 1, item.unit || 'each', item.expiryDate, item.storageLocation || 'pantry']
       );
 
       addedItems.push({
@@ -138,6 +138,7 @@ router.post('/:id/confirm', authenticateToken, async (req, res) => {
         unit: result.rows[0].unit,
         expiryDate: result.rows[0].expiry_date,
         isConsumed: result.rows[0].is_consumed,
+        storageLocation: result.rows[0].storage_location,
         createdAt: result.rows[0].created_at,
       });
     }
