@@ -39,7 +39,7 @@ const LOCATION_CONFIG = {
 };
 
 const StorageLocationBadge: React.FC<StorageLocationBadgeProps> = ({ location, size = 'medium' }) => {
-  const config = LOCATION_CONFIG[location];
+  const config = LOCATION_CONFIG[location] || LOCATION_CONFIG.pantry;
 
   return (
     <span className={`storage-badge ${config.className} storage-badge--${size}`}>
