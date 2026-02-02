@@ -30,7 +30,7 @@ const ALLERGY_OPTIONS = [
 ];
 
 const Preferences: React.FC = () => {
-  const { preferences, isLoading, updatePreferences } = usePreferences();
+  const { preferences, isLoading, error, fetchPreferences, updatePreferences } = usePreferences();
   const [localPreferences, setLocalPreferences] = useState<UserPreferences>({
     dietaryRestrictions: [],
     allergies: [],
@@ -108,6 +108,24 @@ const Preferences: React.FC = () => {
         <div className="preferences-loading">
           <LoadingSpinner size="large" />
           <p>Loading preferences...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error && !preferences) {
+    return (
+      <Layout pageTitle="Preferences" activeNavItem="preferences">
+        <div className="preferences-error">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p className="error-message">{error}</p>
+          <button className="retry-button" onClick={() => fetchPreferences()}>
+            Try Again
+          </button>
         </div>
       </Layout>
     );
@@ -196,7 +214,12 @@ const Preferences: React.FC = () => {
             <select
               className="currency-select"
               value={localPreferences.currency}
-              onChange={(e) => handleCurrencyChange(e.target.value as Currency)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (CURRENCIES.some(c => c.code === value)) {
+                  handleCurrencyChange(value as Currency);
+                }
+              }}
             >
               {CURRENCIES.map((curr) => (
                 <option key={curr.code} value={curr.code}>

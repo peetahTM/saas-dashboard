@@ -15,6 +15,47 @@
   color: #6b7280;
 }
 
+.preferences-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  text-align: center;
+}
+
+.preferences-error svg {
+  color: #dc2626;
+}
+
+.preferences-error .error-message {
+  color: #991b1b;
+  font-size: 16px;
+  margin: 0;
+}
+
+.retry-button {
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.retry-button:hover {
+  background-color: #2563eb;
+}
+
+.retry-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
 .preferences-header {
   margin-bottom: 32px;
 }
