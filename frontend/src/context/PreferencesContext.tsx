@@ -22,6 +22,8 @@ const defaultPreferences: UserPreferences = {
   dietaryRestrictions: [],
   allergies: [],
   dislikedIngredients: [],
+  unitSystem: 'metric',
+  currency: 'USD',
 };
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
