@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "migrate": "node src/db/migrate.js",
@@ -26,5 +28,9 @@
     "pg": "^8.11.3",
     "sharp": "^0.33.2",
     "tesseract.js": "^5.0.4"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0",
+    "vitest": "^4.0.18"
   }
 }
