@@ -330,32 +330,28 @@ Integrate Groq API (free tier) to generate meal plans based on user's pantry ite
 
 ## Task 13: Fix Duplicate Profile Icon Bug
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Bug report: The profile icon appears twice in the header area (top right corner). Investigate and fix.
 
-### Investigation Notes:
-- `Header.tsx` only renders one `user-avatar` div
-- `NotificationBell.tsx` renders a bell icon, not a profile icon
-- `Layout.tsx` renders Header once
-- Possible causes:
-  - CSS issue causing double rendering
-  - Pseudo-elements creating extra visuals
-  - Box-shadow or reflection effects
+### Root Cause:
+Page components (Dashboard, Pantry, Recipes, MealPlan, Preferences) were wrapping their content in `<Layout>` internally, while App.tsx also wrapped them in `<Layout>`. This caused double-nesting of Layout, resulting in two headers with two profile icons.
 
-### Implementation:
-1. Inspect the header in browser dev tools
-2. Check for CSS issues:
-   - Duplicate elements in DOM
-   - Pseudo-elements (::before/::after) creating extra visuals
-   - Box-shadow or reflection effects
-3. Fix identified issue
+### Solution:
+Removed the internal `<Layout>` wrappers from all page components since App.tsx already provides the Layout wrapper:
+- `frontend/src/pages/Dashboard.tsx`
+- `frontend/src/pages/Pantry.tsx`
+- `frontend/src/pages/Recipes.tsx`
+- `frontend/src/pages/MealPlan.tsx`
+- `frontend/src/pages/Preferences.tsx`
 
-### Files to check:
-- `frontend/src/components/Layout/Header.tsx`
-- `frontend/src/components/Layout/Layout.css`
-- `frontend/src/components/Notifications/Notifications.css`
+### Files modified:
+- `frontend/src/pages/Dashboard.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/Pantry.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/Recipes.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/MealPlan.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/Preferences.tsx` - removed Layout import and wrapper
 
 ---
 
