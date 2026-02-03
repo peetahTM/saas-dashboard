@@ -144,6 +144,49 @@
   cursor: not-allowed;
 }
 
+/* Storage Location Buttons */
+.add-grocery-form__storage-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.add-grocery-form__storage-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 150ms ease;
+  flex: 1;
+}
+
+.add-grocery-form__storage-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.add-grocery-form__storage-btn--active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.add-grocery-form__storage-icon {
+  font-size: 20px;
+}
+
+.add-grocery-form__storage-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.add-grocery-form__storage-btn--active .add-grocery-form__storage-label {
+  color: #1d4ed8;
+}
+
 /* Autocomplete */
 .grocery-autocomplete {
   position: relative;
@@ -563,6 +606,15 @@
   .add-grocery-form__field--unit,
   .add-grocery-form__field--expiry {
     flex: 1;
+  }
+
+  .add-grocery-form__storage-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .add-grocery-form__storage-btn {
+    padding: 10px 14px;
   }
 
   .grocery-list__controls {
