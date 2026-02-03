@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
@@ -16,6 +16,12 @@ const Dashboard: React.FC = () => {
   const [suggestedRecipes, setSuggestedRecipes] = useState<SuggestedRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Memoize currency symbol to avoid recomputation on every render
+  const currencySymbol = useMemo(
+    () => getCurrencySymbol(preferences?.currency || 'USD'),
+    [preferences?.currency]
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -82,8 +88,6 @@ const Dashboard: React.FC = () => {
     if (diffDays <= 3) return 'warning';
     return 'normal';
   };
-
-  const currencySymbol = getCurrencySymbol(preferences?.currency || 'USD');
 
   const statsCards = stats ? [
     {
@@ -180,7 +184,7 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       {/* Stats Cards */}
       <div className="stats-grid">
-          {statsCards.map((stat, index) => (
+        {statsCards.map((stat, index) => (
             <div key={index} className={`stat-card stat-card--${stat.color}`}>
               <div className="stat-header">
                 <span className="stat-label">{stat.label}</span>
