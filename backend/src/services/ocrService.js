@@ -58,7 +58,7 @@ class OcrService {
       };
     } catch (error) {
       console.error('[OCR] Image preprocessing error:', error.message);
-      throw new Error('Failed to preprocess image');
+      throw new Error(`Failed to preprocess image: ${error.message}`);
     }
   }
 
@@ -81,18 +81,32 @@ class OcrService {
         },
       });
 
-      // Extract line data with bounding boxes
-      const lines = (result.data.lines || []).map((line, index) => ({
-        index,
-        text: line.text,
-        confidence: line.confidence,
-        bbox: line.bbox ? {
-          x0: line.bbox.x0,
-          y0: line.bbox.y0,
-          x1: line.bbox.x1,
-          y1: line.bbox.y1,
-        } : null,
-      }));
+      // Extract line data with bounding boxes (with validation)
+      const lines = (result.data.lines || []).map((line, index) => {
+        // Validate bounding box data
+        const bbox = line.bbox;
+        const isValidBbox = bbox &&
+          typeof bbox.x0 === 'number' && !isNaN(bbox.x0) &&
+          typeof bbox.y0 === 'number' && !isNaN(bbox.y0) &&
+          typeof bbox.x1 === 'number' && !isNaN(bbox.x1) &&
+          typeof bbox.y1 === 'number' && !isNaN(bbox.y1) &&
+          bbox.x1 > bbox.x0 &&
+          bbox.y1 > bbox.y0 &&
+          bbox.x0 >= 0 &&
+          bbox.y0 >= 0;
+
+        return {
+          index,
+          text: line.text,
+          confidence: line.confidence,
+          bbox: isValidBbox ? {
+            x0: Math.round(bbox.x0),
+            y0: Math.round(bbox.y0),
+            x1: Math.round(bbox.x1),
+            y1: Math.round(bbox.y1),
+          } : null,
+        };
+      });
 
       return {
         text: result.data.text,

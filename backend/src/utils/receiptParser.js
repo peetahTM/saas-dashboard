@@ -168,8 +168,10 @@ export function parseReceiptText(ocrText, ocrLines = null) {
     const category = determineCategory(name);
     const expiryDate = calculateExpiryDate(category);
 
-    // Find matching OCR line by index to get bounding box
-    const ocrLine = ocrLines ? ocrLines[i] : null;
+    // Find matching OCR line by text content (more robust than index matching)
+    const ocrLine = ocrLines?.find(
+      ocrL => ocrL.text && ocrL.text.trim().toLowerCase() === line.trim().toLowerCase()
+    ) || (ocrLines ? ocrLines[i] : null); // Fallback to index if no text match
     const lineConfidence = ocrLine?.confidence ?? 80;
 
     items.push({
