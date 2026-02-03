@@ -12,6 +12,16 @@ const router = express.Router();
  */
 router.post('/generate-meal-plan', authenticateToken, async (req, res) => {
   try {
+    // Validate user ID from JWT
+    const userId = parseInt(req.user?.id);
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({
+        error: 'Invalid request',
+        message: 'Invalid authentication state',
+        code: 'INVALID_USER_ID'
+      });
+    }
+
     // Check if Groq API is configured
     if (!isGroqConfigured()) {
       return res.status(503).json({
@@ -22,17 +32,21 @@ router.post('/generate-meal-plan', authenticateToken, async (req, res) => {
     }
 
     // Generate the meal plan
-    const mealPlan = await generateAIMealPlan(req.user.id);
+    const mealPlan = await generateAIMealPlan(userId);
 
     res.json({
       message: 'AI meal plan generated successfully',
       mealPlan
     });
   } catch (error) {
-    console.error('[AI] Generate meal plan error:', error.message);
+    // Sanitize error logging to prevent API key exposure
+    const sanitizedMessage = error.message?.includes('API key')
+      ? 'Invalid API key configuration'
+      : error.message;
+    console.error('[AI] Generate meal plan error:', sanitizedMessage);
 
     // Handle specific Groq errors
-    if (error.message.includes('API key')) {
+    if (error.message?.includes('API key')) {
       return res.status(503).json({
         error: 'AI service unavailable',
         message: 'Invalid AI service configuration. Please contact the administrator.',
@@ -40,7 +54,7 @@ router.post('/generate-meal-plan', authenticateToken, async (req, res) => {
       });
     }
 
-    if (error.message.includes('rate limit')) {
+    if (error.message?.includes('rate limit')) {
       return res.status(429).json({
         error: 'Rate limited',
         message: 'Too many AI requests. Please try again in a few minutes.',

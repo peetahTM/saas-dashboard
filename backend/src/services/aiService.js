@@ -1,8 +1,23 @@
 import Groq from 'groq-sdk';
 import pool from '../db/index.js';
 
-// Initialize Groq client (will use GROQ_API_KEY env var automatically)
-const groq = new Groq();
+// Lazy-initialized Groq client
+let groq = null;
+
+/**
+ * Get Groq client instance (lazy initialization with validation)
+ * @returns {Groq} - Groq client instance
+ * @throws {Error} - If GROQ_API_KEY is not configured
+ */
+function getGroqClient() {
+  if (!groq) {
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY environment variable is not configured');
+    }
+    groq = new Groq();
+  }
+  return groq;
+}
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner'];
 const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -13,9 +28,18 @@ const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 's
  * @returns {Promise<Object>} - AI-generated meal suggestions
  */
 export async function generateAIMealPlan(userId) {
+  // Validate userId
+  const validatedUserId = parseInt(userId);
+  if (!validatedUserId || isNaN(validatedUserId)) {
+    throw new Error('Invalid user ID');
+  }
+
   const client = await pool.connect();
 
   try {
+    // Set statement timeout to prevent long-held connections during AI calls
+    await client.query("SET statement_timeout = '30s'");
+
     // Get user's expiring groceries (within 7 days)
     const groceriesResult = await client.query(`
       SELECT name, category, quantity, unit, expiry_date,
@@ -26,7 +50,7 @@ export async function generateAIMealPlan(userId) {
         AND expiry_date IS NOT NULL
         AND expiry_date <= CURRENT_DATE + INTERVAL '7 days'
       ORDER BY expiry_date ASC
-    `, [userId]);
+    `, [validatedUserId]);
 
     const expiringItems = groceriesResult.rows.map(g => ({
       name: g.name,
@@ -40,7 +64,7 @@ export async function generateAIMealPlan(userId) {
       SELECT name, category, quantity, unit
       FROM groceries
       WHERE user_id = $1 AND is_consumed = false
-    `, [userId]);
+    `, [validatedUserId]);
 
     const pantryItems = allGroceriesResult.rows.map(g => ({
       name: g.name,
@@ -51,7 +75,7 @@ export async function generateAIMealPlan(userId) {
     // Get user preferences
     const prefsResult = await client.query(
       'SELECT dietary_restrictions, allergies, disliked_ingredients FROM user_preferences WHERE user_id = $1',
-      [userId]
+      [validatedUserId]
     );
 
     const preferences = prefsResult.rows[0] || {
@@ -64,7 +88,7 @@ export async function generateAIMealPlan(userId) {
     const prompt = buildMealPlanPrompt(expiringItems, pantryItems, preferences);
 
     // Call Groq API
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroqClient().chat.completions.create({
       messages: [
         {
           role: 'system',
@@ -91,7 +115,7 @@ export async function generateAIMealPlan(userId) {
     const mealPlan = JSON.parse(responseText);
 
     // Validate and structure the response
-    return formatMealPlanResponse(mealPlan, expiringItems);
+    return formatMealPlanResponse(mealPlan);
   } finally {
     client.release();
   }
@@ -161,9 +185,7 @@ Important:
 /**
  * Format and validate the AI response
  */
-function formatMealPlanResponse(aiResponse, expiringItems) {
-  const expiringNames = expiringItems.map(item => item.name.toLowerCase());
-
+function formatMealPlanResponse(aiResponse) {
   // Ensure we have the required structure
   const meals = aiResponse.meals || {};
   const formattedMeals = {};
