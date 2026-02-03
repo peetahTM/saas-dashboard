@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout/Layout';
 import { MultiSelect, TagInput, LoadingSpinner } from '../components/common';
 import { usePreferences } from '../context/PreferencesContext';
 import type { UserPreferences, UnitSystem, Currency } from '../services/preferencesService';
@@ -104,36 +103,31 @@ const Preferences: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Layout pageTitle="Preferences" activeNavItem="preferences">
-        <div className="preferences-loading">
-          <LoadingSpinner size="large" />
-          <p>Loading preferences...</p>
-        </div>
-      </Layout>
+      <div className="preferences-loading">
+        <LoadingSpinner size="large" />
+        <p>Loading preferences...</p>
+      </div>
     );
   }
 
   if (error && !preferences) {
     return (
-      <Layout pageTitle="Preferences" activeNavItem="preferences">
-        <div className="preferences-error">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <p className="error-message">{error}</p>
-          <button className="retry-button" onClick={() => fetchPreferences()}>
-            Try Again
-          </button>
-        </div>
-      </Layout>
+      <div className="preferences-error">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <p className="error-message">{error}</p>
+        <button className="retry-button" onClick={() => fetchPreferences()}>
+          Try Again
+        </button>
+      </div>
     );
   }
 
   return (
-    <Layout pageTitle="Preferences" activeNavItem="preferences">
-      <div className="preferences">
+    <div className="preferences">
         <div className="preferences-header">
           <h2 className="preferences-title">User Preferences</h2>
           <p className="preferences-subtitle">
@@ -262,9 +256,8 @@ const Preferences: React.FC = () => {
               )}
             </button>
           </div>
-        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

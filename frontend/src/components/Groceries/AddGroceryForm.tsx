@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { CreateGroceryData, GrocerySuggestion, StorageLocation } from '../../services/groceryService';
 import { getDefaultStorageLocation } from '../../services/groceryService';
+import { usePreferences } from '../../context/PreferencesContext';
 import GroceryAutocomplete from './GroceryAutocomplete';
 
 interface AddGroceryFormProps {
@@ -22,7 +23,19 @@ const CATEGORIES = [
   'Other',
 ];
 
-const UNITS = ['pcs', 'kg', 'g', 'lb', 'oz', 'L', 'ml', 'cup', 'tbsp', 'tsp'];
+const METRIC_UNITS = ['pcs', 'kg', 'g', 'L', 'ml'];
+const IMPERIAL_UNITS = ['pcs', 'lb', 'oz', 'cup', 'tbsp', 'tsp'];
+const ALL_UNITS = ['pcs', 'kg', 'g', 'lb', 'oz', 'L', 'ml', 'cup', 'tbsp', 'tsp'];
+
+const getUnitsForSystem = (unitSystem: 'metric' | 'imperial' | undefined): string[] => {
+  if (unitSystem === 'metric') {
+    return [...METRIC_UNITS, ...IMPERIAL_UNITS.filter(u => !METRIC_UNITS.includes(u))];
+  }
+  if (unitSystem === 'imperial') {
+    return [...IMPERIAL_UNITS, ...METRIC_UNITS.filter(u => !IMPERIAL_UNITS.includes(u))];
+  }
+  return ALL_UNITS;
+};
 
 const STORAGE_LOCATIONS: { value: StorageLocation; label: string; icon: string }[] = [
   { value: 'fridge', label: 'Fridge', icon: '❄️' },
@@ -41,6 +54,7 @@ function addDaysToDate(days: number): string {
 }
 
 const AddGroceryForm: React.FC<AddGroceryFormProps> = ({ onSubmit }) => {
+  const { preferences } = usePreferences();
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
   const [quantity, setQuantity] = useState('1');
@@ -49,6 +63,11 @@ const AddGroceryForm: React.FC<AddGroceryFormProps> = ({ onSubmit }) => {
   const [storageLocation, setStorageLocation] = useState<StorageLocation>('pantry');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const availableUnits = useMemo(
+    () => getUnitsForSystem(preferences?.unitSystem),
+    [preferences?.unitSystem]
+  );
 
   const handleSuggestionSelect = (suggestion: GrocerySuggestion) => {
     setCategory(suggestion.category);
@@ -168,7 +187,7 @@ const AddGroceryForm: React.FC<AddGroceryFormProps> = ({ onSubmit }) => {
             onChange={(e) => setUnit(e.target.value)}
             className="add-grocery-form__select"
           >
-            {UNITS.map((u) => (
+            {availableUnits.map((u) => (
               <option key={u} value={u}>
                 {u}
               </option>

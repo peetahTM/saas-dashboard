@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout/Layout';
 import { WeeklyCalendar, GeneratePlanButton } from '../components/MealPlan';
 import { mealPlanService } from '../services/mealPlanService';
 import type { MealPlan as MealPlanType } from '../services/mealPlanService';
@@ -60,8 +59,7 @@ const MealPlan: React.FC = () => {
   };
 
   return (
-    <Layout pageTitle="Meal Plan" activeNavItem="meal-plan">
-      <div className="meal-plan-page">
+    <div className="meal-plan-page">
         <div className="meal-plan-page__header">
           <div className="meal-plan-page__header-content">
             <GeneratePlanButton onGenerate={handleGeneratePlan} />
@@ -108,9 +106,8 @@ const MealPlan: React.FC = () => {
               onNextWeek={handleNextWeek}
             />
           )}
-        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 
