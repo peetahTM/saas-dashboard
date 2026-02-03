@@ -1,11 +1,13 @@
 import { useRef, useEffect, useState } from 'react';
-import type { ParsedItem, BoundingBox } from '../../services/receiptService';
+import type { ParsedItem, BoundingBox, ImageDimensions } from '../../services/receiptService';
 
 interface HighlightedReceiptProps {
   imageUrl: string;
   items: ParsedItem[];
   highlightedIndex: number | null;
   onItemClick: (index: number) => void;
+  /** The dimensions of the processed image used for OCR (for accurate bbox scaling) */
+  processedDimensions?: ImageDimensions;
 }
 
 function getConfidenceColor(confidence: number | undefined): string {
@@ -27,6 +29,7 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
   items,
   highlightedIndex,
   onItemClick,
+  processedDimensions,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -78,10 +81,17 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
   }, [highlightedIndex]);
 
   const scaleBox = (bbox: BoundingBox) => {
-    if (!imageSize.naturalWidth || !imageSize.naturalHeight) return null;
+    if (!imageSize.width || !imageSize.height) return null;
 
-    const scaleX = imageSize.width / imageSize.naturalWidth;
-    const scaleY = imageSize.height / imageSize.naturalHeight;
+    // Use processed dimensions from backend if available (more accurate for OCR bboxes)
+    // Otherwise fall back to the image's natural dimensions
+    const referenceWidth = processedDimensions?.width || imageSize.naturalWidth;
+    const referenceHeight = processedDimensions?.height || imageSize.naturalHeight;
+
+    if (!referenceWidth || !referenceHeight) return null;
+
+    const scaleX = imageSize.width / referenceWidth;
+    const scaleY = imageSize.height / referenceHeight;
 
     return {
       left: bbox.x0 * scaleX,
