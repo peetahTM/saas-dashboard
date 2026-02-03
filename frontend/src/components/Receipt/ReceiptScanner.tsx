@@ -274,6 +274,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
                 items={editedItems}
                 highlightedIndex={highlightedIndex}
                 onItemClick={handleImageItemClick}
+                processedDimensions={scanResult?.imageDimensions}
               />
             </div>
           )}

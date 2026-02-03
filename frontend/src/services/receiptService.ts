@@ -10,6 +10,11 @@ export interface BoundingBox {
   y1: number;
 }
 
+export interface ImageDimensions {
+  width: number;
+  height: number;
+}
+
 export interface ParsedItem {
   name: string;
   category: string;
@@ -28,6 +33,7 @@ export interface ReceiptScan {
   confidence: number | null;
   itemCount: number;
   items: ParsedItem[];
+  imageDimensions?: ImageDimensions;
 }
 
 export interface ReceiptScanSummary {
