@@ -10,6 +10,7 @@ import preferencesRoutes from './routes/preferences.js';
 import notificationsRoutes from './routes/notifications.js';
 import dashboardRoutes from './routes/dashboard.js';
 import receiptsRoutes from './routes/receipts.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/preferences', preferencesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/receipts', receiptsRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
