@@ -551,3 +551,398 @@
     height: 32px;
   }
 }
+
+/* ============================================
+   AI Meal Suggestions Styles
+   ============================================ */
+
+/* AI Generate Button (Purple gradient) */
+.generate-ai-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.generate-ai-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.generate-ai-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.generate-ai-button__spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* AI Suggestions Section */
+.ai-suggestions {
+  margin-top: 24px;
+}
+
+.ai-suggestions__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ai-suggestions__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.ai-suggestions__title svg {
+  color: #8b5cf6;
+}
+
+.ai-suggestions__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.ai-suggestions__close-btn:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* Tips Section */
+.ai-suggestions__tips {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.ai-suggestions__tips-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #166534;
+  margin: 0 0 12px 0;
+}
+
+.ai-suggestions__tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-suggestions__tips-list li {
+  font-size: 13px;
+  color: #15803d;
+  padding-left: 20px;
+  position: relative;
+}
+
+.ai-suggestions__tips-list li::before {
+  content: "\2022";
+  position: absolute;
+  left: 6px;
+  color: #22c55e;
+}
+
+/* Shopping List */
+.ai-suggestions__shopping {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.ai-suggestions__shopping-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  margin: 0 0 12px 0;
+}
+
+.ai-suggestions__shopping-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-suggestions__shopping-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: white;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #78350f;
+  border: 1px solid #fcd34d;
+}
+
+/* Meal Suggestions Grid */
+.ai-suggestions__meals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Meal Suggestion Card */
+.meal-suggestion-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 150ms ease;
+}
+
+.meal-suggestion-card:hover {
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+}
+
+.meal-suggestion-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meal-suggestion-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meal-suggestion-card__meal-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.meal-suggestion-card__day {
+  font-size: 12px;
+  color: #9ca3af;
+  text-transform: capitalize;
+}
+
+.meal-suggestion-card__ai-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.meal-suggestion-card__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.meal-suggestion-card__description {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.meal-suggestion-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meal-suggestion-card__prep-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.meal-suggestion-card__prep-time svg {
+  color: #9ca3af;
+}
+
+.meal-suggestion-card__ingredients {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.meal-suggestion-card__ingredients-label {
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.meal-suggestion-card__ingredients-list {
+  color: #374151;
+}
+
+.meal-suggestion-card__expiring {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #fef3c7;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #92400e;
+}
+
+.meal-suggestion-card__expiring svg {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.meal-suggestion-card__add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 150ms ease;
+  margin-top: auto;
+}
+
+.meal-suggestion-card__add-btn:hover {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+}
+
+/* Loading state for AI generation */
+.ai-suggestions__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 24px;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border-radius: 12px;
+  border: 1px dashed #c4b5fd;
+}
+
+.ai-suggestions__loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e9d5ff;
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.ai-suggestions__loading-text {
+  font-size: 14px;
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+/* Error state for AI */
+.ai-suggestions__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  background: #fef2f2;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  text-align: center;
+}
+
+.ai-suggestions__error svg {
+  color: #dc2626;
+}
+
+.ai-suggestions__error-text {
+  font-size: 14px;
+  color: #991b1b;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ai-suggestions__meals {
+    grid-template-columns: 1fr;
+  }
+
+  .generate-ai-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 375px) {
+  .meal-suggestion-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .meal-suggestion-card__name {
+    font-size: 14px;
+  }
+
+  .meal-suggestion-card__description {
+    font-size: 12px;
+  }
+
+  .ai-suggestions__tips,
+  .ai-suggestions__shopping {
+    padding: 12px;
+  }
+}
