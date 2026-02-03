@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout/Layout';
 import { RecipeGrid, RecipeFilters } from '../components/Recipes';
 import { recipeService } from '../services/recipeService';
 import type { Recipe, RecipeSuggestion } from '../services/recipeService';
@@ -57,13 +56,8 @@ const Recipes: React.FC = () => {
     setActiveFilter(filter);
   };
 
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
-
   return (
-    <Layout pageTitle="Recipes" activeNavItem="recipes" onNavigate={handleNavigate}>
-      <div className="recipes-page">
+    <div className="recipes-page">
         {/* Suggestions Section */}
         {!isLoadingSuggestions && suggestions.length > 0 && (
           <section className="recipes-suggestions-section">
@@ -131,9 +125,8 @@ const Recipes: React.FC = () => {
               onRecipeClick={handleRecipeClick}
             />
           )}
-        </section>
-      </div>
-    </Layout>
+      </section>
+    </div>
   );
 };
 

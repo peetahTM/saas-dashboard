@@ -1,19 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout/Layout';
 import { useAuth } from '../context/AuthContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { dashboardService } from '../services/dashboardService';
+import { getCurrencySymbol } from '../services/preferencesService';
 import type { DashboardStats, ExpiringItem, SuggestedRecipe } from '../services/dashboardService';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { preferences } = usePreferences();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [expiringItems, setExpiringItems] = useState<ExpiringItem[]>([]);
   const [suggestedRecipes, setSuggestedRecipes] = useState<SuggestedRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Memoize currency symbol to avoid recomputation on every render
+  const currencySymbol = useMemo(
+    () => getCurrencySymbol(preferences?.currency || 'USD'),
+    [preferences?.currency]
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -54,10 +62,6 @@ const Dashboard: React.FC = () => {
 
     fetchDashboardData();
   }, [isAuthenticated]);
-
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
 
   const formatDaysUntilExpiry = (expiryDate: string): string => {
     const today = new Date();
@@ -109,7 +113,7 @@ const Dashboard: React.FC = () => {
     },
     {
       label: 'Potential Savings',
-      value: `$${stats.potentialSavings}`,
+      value: `${currencySymbol}${stats.potentialSavings}`,
       description: 'Estimated money saved',
       icon: 'dollar',
       color: 'primary'
@@ -118,14 +122,12 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout pageTitle="Dashboard" activeNavItem="dashboard" onNavigate={handleNavigate}>
-        <div className="dashboard">
-          <div className="dashboard__loading">
-            <div className="dashboard__spinner" />
-            <span>Loading dashboard...</span>
-          </div>
+      <div className="dashboard">
+        <div className="dashboard__loading">
+          <div className="dashboard__spinner" />
+          <span>Loading dashboard...</span>
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -162,30 +164,27 @@ const Dashboard: React.FC = () => {
 
   if (error) {
     return (
-      <Layout pageTitle="Dashboard" activeNavItem="dashboard" onNavigate={handleNavigate}>
-        <div className="dashboard">
-          <div className="dashboard__error">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <p>{error}</p>
-            <button className="dashboard__retry-btn" onClick={handleRetry}>
-              Try Again
-            </button>
-          </div>
+      <div className="dashboard">
+        <div className="dashboard__error">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p>{error}</p>
+          <button className="dashboard__retry-btn" onClick={handleRetry}>
+            Try Again
+          </button>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout pageTitle="Dashboard" activeNavItem="dashboard" onNavigate={handleNavigate}>
-      <div className="dashboard">
-        {/* Stats Cards */}
-        <div className="stats-grid">
-          {statsCards.map((stat, index) => (
+    <div className="dashboard">
+      {/* Stats Cards */}
+      <div className="stats-grid">
+        {statsCards.map((stat, index) => (
             <div key={index} className={`stat-card stat-card--${stat.color}`}>
               <div className="stat-header">
                 <span className="stat-label">{stat.label}</span>
@@ -340,9 +339,8 @@ const Dashboard: React.FC = () => {
               <span>Settings</span>
             </button>
           </div>
-        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

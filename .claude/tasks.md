@@ -238,3 +238,267 @@ Enable OCR and categorization to work with Swedish receipts.
 - `backend/src/services/ocrService.js`
 - `backend/src/utils/receiptParser.js`
 - `backend/src/db/seed.js` (optional - Swedish suggestions)
+
+---
+
+## Task 11: Add Unit Measurement Preference (Metric/Imperial)
+
+**Status:** completed
+
+### Description:
+Add a global user preference for unit system (Metric vs Imperial). When adding items, default units will match the user's preference.
+
+### Implementation:
+
+#### Backend:
+1. Add migration `005_add_user_preferences.js`:
+   ```sql
+   ALTER TABLE users ADD COLUMN unit_system VARCHAR(10) DEFAULT 'metric';
+   ```
+
+2. Update preferences routes to include `unitSystem`
+
+#### Frontend:
+1. Update `UserPreferences` interface in `preferencesService.ts`:
+   ```typescript
+   unitSystem: 'metric' | 'imperial';
+   ```
+
+2. Update `Preferences.tsx`:
+   - Add toggle/radio buttons for Metric/Imperial
+
+3. Update `AddGroceryForm.tsx`:
+   - Filter/prioritize units based on preference:
+     - Metric: kg, g, L, ml
+     - Imperial: lb, oz, cup, tbsp, tsp
+
+### Files to modify:
+- `backend/src/db/migrations/005_add_user_preferences.js` (new)
+- `backend/src/routes/preferences.js`
+- `frontend/src/services/preferencesService.ts`
+- `frontend/src/pages/Preferences.tsx`
+- `frontend/src/components/Groceries/AddGroceryForm.tsx`
+
+---
+
+## Task 12: Generate Meal Plan with Groq AI
+
+**Status:** pending
+
+### Description:
+Integrate Groq API (free tier) to generate meal plans based on user's pantry items, dietary restrictions, and preferences.
+
+### Implementation:
+
+#### Backend:
+1. Install Groq SDK:
+   ```bash
+   npm install groq-sdk --workspace=backend
+   ```
+
+2. Create `aiService.js` in `backend/src/services/`:
+   - Initialize Groq client with API key from env
+   - Create `generateMealPlan(pantryItems, preferences)` function
+   - Use Llama 3 or Mixtral model
+   - Prompt template for meal suggestions
+
+3. Create new route `backend/src/routes/ai.js`:
+   - `POST /api/ai/generate-meal-plan`
+   - Accept: date range, meal types, dietary preferences
+   - Return: structured meal suggestions
+
+#### Frontend:
+1. Create `aiService.ts` in `frontend/src/services/`
+
+2. Update `MealPlan.tsx`:
+   - Add "Generate with AI" button
+   - Show loading state during generation
+   - Display suggestions with "Add to Plan" action
+
+3. Create `MealSuggestionCard.tsx` component
+
+### Files to modify:
+- `backend/src/services/aiService.js` (new)
+- `backend/src/routes/ai.js` (new)
+- `backend/src/routes/index.js`
+- `frontend/src/services/aiService.ts` (new)
+- `frontend/src/pages/MealPlan.tsx`
+- `frontend/src/components/MealPlan/MealSuggestionCard.tsx` (new)
+- `.env.example` (add GROQ_API_KEY)
+
+---
+
+## Task 13: Fix Duplicate Profile Icon Bug
+
+**Status:** completed
+
+### Description:
+Bug report: The profile icon appears twice in the header area (top right corner). Investigate and fix.
+
+### Root Cause:
+Page components (Dashboard, Pantry, Recipes, MealPlan, Preferences) were wrapping their content in `<Layout>` internally, while App.tsx also wrapped them in `<Layout>`. This caused double-nesting of Layout, resulting in two headers with two profile icons.
+
+### Solution:
+Removed the internal `<Layout>` wrappers from all page components since App.tsx already provides the Layout wrapper:
+- `frontend/src/pages/Dashboard.tsx`
+- `frontend/src/pages/Pantry.tsx`
+- `frontend/src/pages/Recipes.tsx`
+- `frontend/src/pages/MealPlan.tsx`
+- `frontend/src/pages/Preferences.tsx`
+
+### Files modified:
+- `frontend/src/pages/Dashboard.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/Pantry.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/Recipes.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/MealPlan.tsx` - removed Layout import and wrapper
+- `frontend/src/pages/Preferences.tsx` - removed Layout import and wrapper
+
+---
+
+## Task 14: Add Currency Preference for Potential Savings
+
+**Status:** completed
+
+### Description:
+Allow users to set their preferred currency for displaying potential savings and cost-related features.
+
+### Implementation:
+
+#### Backend:
+1. Update migration (combine with Task 11):
+   ```sql
+   ALTER TABLE users ADD COLUMN currency VARCHAR(3) DEFAULT 'USD';
+   ```
+
+#### Frontend:
+1. Update `UserPreferences` interface:
+   ```typescript
+   currency: string; // ISO 4217 code (USD, EUR, SEK, GBP, etc.)
+   ```
+
+2. Update `Preferences.tsx`:
+   - Add currency dropdown with common options:
+     - USD ($), EUR (€), GBP (£), SEK (kr), etc.
+
+3. Update Dashboard/savings displays to use user's currency symbol
+
+### Currency mapping:
+```typescript
+const CURRENCIES = {
+  USD: { symbol: '$', name: 'US Dollar' },
+  EUR: { symbol: '€', name: 'Euro' },
+  GBP: { symbol: '£', name: 'British Pound' },
+  SEK: { symbol: 'kr', name: 'Swedish Krona' },
+};
+```
+
+### Files to modify:
+- `backend/src/db/migrations/005_add_user_preferences.js` (combine with Task 11)
+- `backend/src/routes/preferences.js`
+- `frontend/src/services/preferencesService.ts`
+- `frontend/src/pages/Preferences.tsx`
+- `frontend/src/pages/Dashboard.tsx` (if savings displayed)
+
+---
+
+## Task 15: Add Edit Functionality for Grocery Items
+
+**Status:** pending
+
+### Description:
+Allow users to edit grocery items after they've been added. Currently only consume/delete actions exist.
+
+### Implementation:
+
+#### Frontend:
+1. Create `EditGroceryModal.tsx` component:
+   - Reuse form fields from `AddGroceryForm`
+   - Pre-populate with existing item data
+   - Cancel and Save buttons
+   - Call update API on save
+
+2. Update `GroceryItem.tsx`:
+   - Add edit button (pencil icon)
+   - Manage modal open/close state
+   - Pass item data to modal
+
+3. Update `groceryService.ts`:
+   - Ensure `updateGrocery` method exists and works
+
+4. Update `GroceryContext.tsx`:
+   - Add `updateGrocery` action if missing
+
+#### Backend:
+- Verify `PUT /api/groceries/:id` route works correctly
+
+### Files to modify:
+- `frontend/src/components/Groceries/EditGroceryModal.tsx` (new)
+- `frontend/src/components/Groceries/GroceryItem.tsx`
+- `frontend/src/services/groceryService.ts`
+- `frontend/src/context/GroceryContext.tsx`
+- `frontend/src/pages/Pantry.css` (modal styles)
+
+---
+
+## Task 16: Improve Storage Location Button Styling
+
+**Status:** pending
+
+### Description:
+The storage location buttons in `AddGroceryForm` are missing CSS styling. The component uses these classes but they have NO CSS defined:
+- `.add-grocery-form__storage-buttons`
+- `.add-grocery-form__storage-btn`
+- `.add-grocery-form__storage-btn--active`
+- `.add-grocery-form__storage-icon`
+- `.add-grocery-form__storage-label`
+
+### Implementation:
+Add the following CSS to `Pantry.css`:
+
+```css
+/* Storage Location Buttons */
+.add-grocery-form__storage-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.add-grocery-form__storage-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 150ms ease;
+  flex: 1;
+}
+
+.add-grocery-form__storage-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.add-grocery-form__storage-btn--active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.add-grocery-form__storage-icon {
+  font-size: 20px;
+}
+
+.add-grocery-form__storage-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.add-grocery-form__storage-btn--active .add-grocery-form__storage-label {
+  color: #1d4ed8;
+}
+```
+
+### Files to modify:
+- `frontend/src/pages/Pantry.css`

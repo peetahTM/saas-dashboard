@@ -1,19 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout/Layout';
 import { AddGroceryForm, GroceryList } from '../components/Groceries';
 import { ReceiptScanner } from '../components/Receipt';
 import { useGroceries } from '../context/GroceryContext';
 import './Pantry.css';
 
 const Pantry: React.FC = () => {
-  const navigate = useNavigate();
   const { groceries, loading, error, addGrocery, consumeGrocery, deleteGrocery, fetchGroceries } = useGroceries();
   const [showReceiptScanner, setShowReceiptScanner] = useState(false);
-
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
 
   const handleConsume = async (id: number) => {
     await consumeGrocery(id);
@@ -30,11 +23,7 @@ const Pantry: React.FC = () => {
   };
 
   return (
-    <Layout
-      pageTitle="My Pantry"
-      activeNavItem="pantry"
-      onNavigate={handleNavigate}
-    >
+    <>
       <div className="pantry">
         <div className="pantry__form-section">
           <div className="pantry__form-header">
@@ -95,7 +84,7 @@ const Pantry: React.FC = () => {
           />
         </div>
       )}
-    </Layout>
+    </>
   );
 };
 
