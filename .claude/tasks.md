@@ -502,3 +502,68 @@ Add the following CSS to `Pantry.css`:
 
 ### Files to modify:
 - `frontend/src/pages/Pantry.css`
+
+---
+
+## Task 17: Fix Currency Preference Not Saving
+
+**Status:** pending
+
+### Description:
+Bug report: The currency preference cannot be saved. When users try to change their currency setting in the Preferences page, the change does not persist.
+
+### Investigation:
+1. Check if the backend `PUT /api/preferences` route accepts and saves the `currency` field
+2. Check if the frontend is sending the currency value correctly
+3. Verify database column exists and migration was run
+4. Check for any validation errors in the API response
+
+### Files to investigate:
+- `backend/src/routes/preferences.js`
+- `frontend/src/pages/Preferences.tsx`
+- `frontend/src/services/preferencesService.ts`
+- `backend/src/db/migrations/005_add_user_preferences.js`
+
+---
+
+## Task 18: Fix Receipt Crop Highlighting Out-of-Bounds Areas
+
+**Status:** pending
+
+### Description:
+Bug report: When cropping a receipt image, the highlight boxes still show areas that are outside the cropped region. The bounding box coordinates from OCR are relative to the cropped image, but the highlighting may be using wrong reference dimensions.
+
+### Root Cause Analysis:
+- When user crops the image, the cropped blob is sent to OCR
+- OCR returns bounding boxes relative to the cropped image dimensions
+- However, the preview URL shown might still reference the original image
+- Or the processed dimensions don't account for the crop transformation
+
+### Fix:
+1. Ensure the cropped image (not original) is displayed during review step
+2. Verify `processedDimensions` from backend matches the cropped image that was sent
+3. The `previewUrl` in review step should point to the cropped image blob URL
+
+### Files to investigate:
+- `frontend/src/components/Receipt/ReceiptScanner.tsx`
+- `frontend/src/components/Receipt/HighlightedReceipt.tsx`
+- `backend/src/services/ocrService.js`
+
+---
+
+## Task 19: Configure Groq API Key for Meal Plan Generation
+
+**Status:** pending
+
+### Description:
+The AI meal plan generation feature requires a Groq API key to function. Need to add the API key to the environment configuration.
+
+### Implementation:
+1. Get a Groq API key from https://console.groq.com/
+2. Add `GROQ_API_KEY` to `.env` file in the backend directory
+3. Verify the AI service initializes correctly with the key
+4. Test meal plan generation functionality
+
+### Files to modify:
+- `backend/.env` (add GROQ_API_KEY=your_key_here)
+- `backend/.env.example` (document the required variable)
