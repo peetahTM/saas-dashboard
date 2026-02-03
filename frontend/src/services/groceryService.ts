@@ -37,6 +37,7 @@ export interface UpdateGroceryData {
   quantity?: number;
   unit?: string;
   expiryDate?: string;
+  storageLocation?: StorageLocation;
 }
 
 interface GroceriesResponse {

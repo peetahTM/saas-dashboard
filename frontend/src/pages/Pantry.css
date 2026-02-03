@@ -540,6 +540,213 @@
   transform: scale(1.05);
 }
 
+.grocery-item__btn--edit {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.grocery-item__btn--edit:hover {
+  background: #c7d2fe;
+  transform: scale(1.05);
+}
+
+/* Edit Grocery Modal */
+.edit-grocery-modal__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.edit-grocery-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.edit-grocery-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-grocery-modal__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.edit-grocery-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.edit-grocery-modal__close:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.edit-grocery-modal form {
+  padding: 24px;
+}
+
+.edit-grocery-modal__error {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.edit-grocery-modal__field {
+  margin-bottom: 16px;
+}
+
+.edit-grocery-modal__field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.edit-grocery-modal__row {
+  display: flex;
+  gap: 16px;
+}
+
+.edit-grocery-modal__row .edit-grocery-modal__field {
+  flex: 1;
+}
+
+.edit-grocery-modal__input,
+.edit-grocery-modal__select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1f2937;
+  background: white;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  box-sizing: border-box;
+}
+
+.edit-grocery-modal__input:focus,
+.edit-grocery-modal__select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.edit-grocery-modal__storage-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.edit-grocery-modal__storage-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 150ms ease;
+  flex: 1;
+}
+
+.edit-grocery-modal__storage-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.edit-grocery-modal__storage-btn--active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.edit-grocery-modal__storage-icon {
+  font-size: 20px;
+}
+
+.edit-grocery-modal__storage-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.edit-grocery-modal__storage-btn--active .edit-grocery-modal__storage-label {
+  color: #1d4ed8;
+}
+
+.edit-grocery-modal__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.edit-grocery-modal__btn {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.edit-grocery-modal__btn--cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.edit-grocery-modal__btn--cancel:hover {
+  background: #e5e7eb;
+}
+
+.edit-grocery-modal__btn--save {
+  background: #3b82f6;
+  color: white;
+}
+
+.edit-grocery-modal__btn--save:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.edit-grocery-modal__btn--save:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .pantry {

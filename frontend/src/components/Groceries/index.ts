@@ -4,3 +4,4 @@ export { default as ExpiryBadge } from './ExpiryBadge';
 export { default as AddGroceryForm } from './AddGroceryForm';
 export { default as GroceryAutocomplete } from './GroceryAutocomplete';
 export { default as StorageLocationBadge } from './StorageLocationBadge';
+export { default as EditGroceryModal } from './EditGroceryModal';

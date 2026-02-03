@@ -5,7 +5,7 @@ import { useGroceries } from '../context/GroceryContext';
 import './Pantry.css';
 
 const Pantry: React.FC = () => {
-  const { groceries, loading, error, addGrocery, consumeGrocery, deleteGrocery, fetchGroceries } = useGroceries();
+  const { groceries, loading, error, addGrocery, updateGrocery, consumeGrocery, deleteGrocery, fetchGroceries } = useGroceries();
   const [showReceiptScanner, setShowReceiptScanner] = useState(false);
 
   const handleConsume = async (id: number) => {
@@ -71,6 +71,7 @@ const Pantry: React.FC = () => {
               groceries={groceries}
               onConsume={handleConsume}
               onDelete={handleDelete}
+              onUpdate={updateGrocery}
             />
           )}
         </div>

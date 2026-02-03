@@ -403,7 +403,7 @@ const CURRENCIES = {
 
 ## Task 15: Add Edit Functionality for Grocery Items
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Allow users to edit grocery items after they've been added. Currently only consume/delete actions exist.

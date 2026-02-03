@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react';
-import type { Grocery } from '../../services/groceryService';
+import type { Grocery, UpdateGroceryData } from '../../services/groceryService';
 import GroceryItem from './GroceryItem';
 
 interface GroceryListProps {
   groceries: Grocery[];
   onConsume: (id: number) => void;
   onDelete: (id: number) => void;
+  onUpdate: (id: number, data: UpdateGroceryData) => Promise<{ success: boolean; error?: string }>;
 }
 
 type SortOption = 'expiry' | 'category' | 'name';
 
-const GroceryList: React.FC<GroceryListProps> = ({ groceries, onConsume, onDelete }) => {
+const GroceryList: React.FC<GroceryListProps> = ({ groceries, onConsume, onDelete, onUpdate }) => {
   const [sortBy, setSortBy] = useState<SortOption>('expiry');
   const [showConsumed, setShowConsumed] = useState(false);
 
@@ -116,6 +117,7 @@ const GroceryList: React.FC<GroceryListProps> = ({ groceries, onConsume, onDelet
                     grocery={grocery}
                     onConsume={onConsume}
                     onDelete={onDelete}
+                    onUpdate={onUpdate}
                   />
                 ))}
               </div>
@@ -130,6 +132,7 @@ const GroceryList: React.FC<GroceryListProps> = ({ groceries, onConsume, onDelet
               grocery={grocery}
               onConsume={onConsume}
               onDelete={onDelete}
+              onUpdate={onUpdate}
             />
           ))}
         </div>
