@@ -168,9 +168,25 @@
   background: #f9fafb;
 }
 
+.add-grocery-form__storage-btn:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.add-grocery-form__storage-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 .add-grocery-form__storage-btn--active {
   border-color: #3b82f6;
   background: #eff6ff;
+}
+
+.add-grocery-form__storage-btn--active:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
 }
 
 .add-grocery-form__storage-icon {
