@@ -93,12 +93,23 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
     const scaleX = imageSize.width / referenceWidth;
     const scaleY = imageSize.height / referenceHeight;
 
-    return {
-      left: bbox.x0 * scaleX,
-      top: bbox.y0 * scaleY,
-      width: (bbox.x1 - bbox.x0) * scaleX,
-      height: (bbox.y1 - bbox.y0) * scaleY,
-    };
+    // Calculate scaled coordinates
+    let left = bbox.x0 * scaleX;
+    let top = bbox.y0 * scaleY;
+    let width = (bbox.x1 - bbox.x0) * scaleX;
+    let height = (bbox.y1 - bbox.y0) * scaleY;
+
+    // Clamp values to ensure boxes stay within image bounds
+    // This prevents highlighting areas outside the visible image
+    left = Math.max(0, Math.min(left, imageSize.width));
+    top = Math.max(0, Math.min(top, imageSize.height));
+    width = Math.max(0, Math.min(width, imageSize.width - left));
+    height = Math.max(0, Math.min(height, imageSize.height - top));
+
+    // Skip boxes that are too small after clamping (likely out of bounds)
+    if (width < 2 || height < 2) return null;
+
+    return { left, top, width, height };
   };
 
   const itemsWithBbox = items.filter((item) => item.bbox);

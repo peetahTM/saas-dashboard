@@ -19,6 +19,9 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
+  // Track the URL of the image that was actually sent to OCR processing
+  // This ensures the review step displays the correct image matching the bounding boxes
+  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ReceiptScan | null>(null);
@@ -95,6 +98,12 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     setIsProcessing(true);
     setError(null);
 
+    // Store the URL of the image being sent to OCR
+    // This ensures the review step shows the exact image that was processed
+    // Use cropped preview URL if available, otherwise use original
+    const imageUrlForProcessing = croppedFile ? previewUrl : originalPreviewUrl;
+    setProcessedImageUrl(imageUrlForProcessing);
+
     const result = await receiptService.uploadReceipt(fileToUpload);
 
     setIsProcessing(false);
@@ -122,6 +131,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     setCroppedFile(null);
     setPreviewUrl(null);
     setOriginalPreviewUrl(null);
+    setProcessedImageUrl(null);
     setScanResult(null);
     setEditedItems([]);
     setError(null);
@@ -267,10 +277,10 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
         </p>
 
         <div className="receipt-scanner__review-content">
-          {hasBboxData && previewUrl && (
+          {hasBboxData && processedImageUrl && (
             <div className="receipt-scanner__review-image">
               <HighlightedReceipt
-                imageUrl={previewUrl}
+                imageUrl={processedImageUrl}
                 items={editedItems}
                 highlightedIndex={highlightedIndex}
                 onItemClick={handleImageItemClick}
