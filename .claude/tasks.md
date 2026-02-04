@@ -507,22 +507,24 @@ Add the following CSS to `Pantry.css`:
 
 ## Task 17: Fix Currency Preference Not Saving
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Bug report: The currency preference cannot be saved. When users try to change their currency setting in the Preferences page, the change does not persist.
 
-### Investigation:
-1. Check if the backend `PUT /api/preferences` route accepts and saves the `currency` field
-2. Check if the frontend is sending the currency value correctly
-3. Verify database column exists and migration was run
-4. Check for any validation errors in the API response
+### Root Cause:
+The `user_preferences` table uses `user_id` as the primary key (not `id`), but the backend SQL queries were trying to SELECT and RETURN a non-existent `id` column. This caused database errors when trying to save preferences.
 
-### Files to investigate:
-- `backend/src/routes/preferences.js`
-- `frontend/src/pages/Preferences.tsx`
-- `frontend/src/services/preferencesService.ts`
-- `backend/src/db/migrations/005_add_user_preferences.js`
+### Solution:
+1. Updated all SQL queries in `backend/src/routes/preferences.js` to use `user_id` instead of `id`
+2. Fixed the RETURNING clauses to return `user_id` and map it to `id` in the response for backward compatibility
+3. Fixed SEK currency symbol from 'SEK' to 'kr' in `preferencesService.ts`
+4. Updated `seed.js` to include `unit_system` and `currency` columns
+
+### Files modified:
+- `backend/src/routes/preferences.js` - Fixed SQL queries to use correct column name
+- `frontend/src/services/preferencesService.ts` - Fixed SEK symbol
+- `backend/src/db/seed.js` - Added unit_system and currency to demo user preferences
 
 ---
 

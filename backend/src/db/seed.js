@@ -720,8 +720,8 @@ const seed = async () => {
 
     // Create user preferences for demo user
     await client.query(
-      'INSERT INTO user_preferences (user_id, dietary_restrictions, allergies, disliked_ingredients) VALUES ($1, $2, $3, $4)',
-      [demoUserId, ['vegetarian-friendly'], [], ['anchovies', 'liver']]
+      'INSERT INTO user_preferences (user_id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency) VALUES ($1, $2, $3, $4, $5, $6)',
+      [demoUserId, ['vegetarian-friendly'], [], ['anchovies', 'liver'], 'metric', 'USD']
     );
 
     // Seed demo user groceries

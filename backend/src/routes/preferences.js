@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/', authenticateToken, async (req, res) => {
   try {
     let result = await pool.query(
-      `SELECT id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency
+      `SELECT user_id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency
        FROM user_preferences
        WHERE user_id = $1`,
       [req.user.id]
@@ -24,14 +24,14 @@ router.get('/', authenticateToken, async (req, res) => {
         `INSERT INTO user_preferences (user_id)
          VALUES ($1)
          ON CONFLICT (user_id) DO NOTHING
-         RETURNING id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency`,
+         RETURNING user_id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency`,
         [req.user.id]
       );
 
       // If another request won the race, fetch instead
       if (newPrefs.rows.length === 0) {
         result = await pool.query(
-          `SELECT id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency
+          `SELECT user_id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency
            FROM user_preferences
            WHERE user_id = $1`,
           [req.user.id]
@@ -39,7 +39,7 @@ router.get('/', authenticateToken, async (req, res) => {
       } else {
         return res.json({
           preferences: {
-            id: newPrefs.rows[0].id,
+            id: newPrefs.rows[0].user_id,
             dietaryRestrictions: newPrefs.rows[0].dietary_restrictions || [],
             allergies: newPrefs.rows[0].allergies || [],
             dislikedIngredients: newPrefs.rows[0].disliked_ingredients || [],
@@ -54,7 +54,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     res.json({
       preferences: {
-        id: prefs.id,
+        id: prefs.user_id,
         dietaryRestrictions: prefs.dietary_restrictions || [],
         allergies: prefs.allergies || [],
         dislikedIngredients: prefs.disliked_ingredients || [],
@@ -116,7 +116,7 @@ router.put('/', authenticateToken, async (req, res) => {
          disliked_ingredients = EXCLUDED.disliked_ingredients,
          unit_system = EXCLUDED.unit_system,
          currency = EXCLUDED.currency
-       RETURNING id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency`,
+       RETURNING user_id, dietary_restrictions, allergies, disliked_ingredients, unit_system, currency`,
       [req.user.id, validDietaryRestrictions, validAllergies, validDislikedIngredients, validUnitSystem, validCurrency]
     );
 
@@ -125,7 +125,7 @@ router.put('/', authenticateToken, async (req, res) => {
     res.json({
       message: 'Preferences updated successfully',
       preferences: {
-        id: prefs.id,
+        id: prefs.user_id,
         dietaryRestrictions: prefs.dietary_restrictions || [],
         allergies: prefs.allergies || [],
         dislikedIngredients: prefs.disliked_ingredients || [],
