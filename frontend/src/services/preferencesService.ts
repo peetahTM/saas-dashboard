@@ -8,7 +8,7 @@ export const CURRENCIES: { code: Currency; symbol: string; name: string }[] = [
   { code: 'USD', symbol: '$', name: 'US Dollar' },
   { code: 'EUR', symbol: '\u20AC', name: 'Euro' },
   { code: 'GBP', symbol: '\u00A3', name: 'British Pound' },
-  { code: 'SEK', symbol: 'SEK', name: 'Swedish Krona' },
+  { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
   { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
   { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
   { code: 'JPY', symbol: '\u00A5', name: 'Japanese Yen' },
