@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { receiptService, type ParsedItem, type ReceiptScan } from '../../services/receiptService';
 import ReceiptPreview from './ReceiptPreview';
 import ParsedItemsList from './ParsedItemsList';
@@ -19,9 +19,9 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
-  // Track the URL of the image that was actually sent to OCR processing
-  // This ensures the review step displays the correct image matching the bounding boxes
-  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
+  // Track whether the cropped image was used for OCR processing
+  // This determines which URL to display in the review step for accurate bbox alignment
+  const [usedCroppedImage, setUsedCroppedImage] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ReceiptScan | null>(null);
@@ -31,6 +31,31 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Refs to track current URLs for cleanup on unmount
+  const previewUrlRef = useRef<string | null>(null);
+  const originalPreviewUrlRef = useRef<string | null>(null);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    previewUrlRef.current = previewUrl;
+  }, [previewUrl]);
+
+  useEffect(() => {
+    originalPreviewUrlRef.current = originalPreviewUrl;
+  }, [originalPreviewUrl]);
+
+  // Cleanup blob URLs on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current && previewUrlRef.current !== originalPreviewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+      if (originalPreviewUrlRef.current) {
+        URL.revokeObjectURL(originalPreviewUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -98,11 +123,8 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     setIsProcessing(true);
     setError(null);
 
-    // Store the URL of the image being sent to OCR
-    // This ensures the review step shows the exact image that was processed
-    // Use cropped preview URL if available, otherwise use original
-    const imageUrlForProcessing = croppedFile ? previewUrl : originalPreviewUrl;
-    setProcessedImageUrl(imageUrlForProcessing);
+    // Track which image was sent for OCR processing
+    setUsedCroppedImage(!!croppedFile);
 
     const result = await receiptService.uploadReceipt(fileToUpload);
 
@@ -131,7 +153,7 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
     setCroppedFile(null);
     setPreviewUrl(null);
     setOriginalPreviewUrl(null);
-    setProcessedImageUrl(null);
+    setUsedCroppedImage(false);
     setScanResult(null);
     setEditedItems([]);
     setError(null);
@@ -277,10 +299,10 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsAdded, onClose }
         </p>
 
         <div className="receipt-scanner__review-content">
-          {hasBboxData && processedImageUrl && (
+          {hasBboxData && (usedCroppedImage ? previewUrl : originalPreviewUrl) && (
             <div className="receipt-scanner__review-image">
               <HighlightedReceipt
-                imageUrl={processedImageUrl}
+                imageUrl={(usedCroppedImage ? previewUrl : originalPreviewUrl)!}
                 items={editedItems}
                 highlightedIndex={highlightedIndex}
                 onItemClick={handleImageItemClick}
