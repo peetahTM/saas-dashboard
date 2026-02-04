@@ -710,6 +710,36 @@
   border: 1px solid #fcd34d;
 }
 
+/* Save All Button */
+.ai-suggestions__save-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  margin-bottom: 20px;
+}
+
+.ai-suggestions__save-all-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.ai-suggestions__save-all-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* Meal Suggestions Grid */
 .ai-suggestions__meals {
   display: grid;
@@ -862,6 +892,103 @@
   background: #8b5cf6;
   border-color: #8b5cf6;
   color: white;
+}
+
+.meal-suggestion-card__no-plan {
+  padding: 10px;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+  margin-top: auto;
+}
+
+.meal-suggestion-card__selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-top: auto;
+}
+
+.meal-suggestion-card__selector-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meal-suggestion-card__selector-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 40px;
+}
+
+.meal-suggestion-card__selector-select {
+  flex: 1;
+  padding: 6px 10px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.meal-suggestion-card__selector-select:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+.meal-suggestion-card__selector-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.meal-suggestion-card__selector-cancel {
+  flex: 1;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.meal-suggestion-card__selector-cancel:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.meal-suggestion-card__selector-confirm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #8b5cf6;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.meal-suggestion-card__selector-confirm:hover {
+  background: #7c3aed;
 }
 
 /* Loading state for AI generation */

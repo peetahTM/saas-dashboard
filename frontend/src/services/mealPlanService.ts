@@ -3,10 +3,14 @@ import type { ApiResponse } from './api';
 
 /** A single meal slot containing recipe information */
 export interface MealSlot {
-  recipeId: number;
+  recipeId?: number;
   recipeName: string;
   prepTime?: number;
   usesExpiring?: string[];
+  /** For AI-generated meals without a recipe */
+  description?: string;
+  ingredients?: string[];
+  isAISuggestion?: boolean;
 }
 
 /** Structure for a single day's meals */

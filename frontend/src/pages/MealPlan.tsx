@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { WeeklyCalendar, GeneratePlanButton, MealSuggestionCard } from '../components/MealPlan';
 import { mealPlanService } from '../services/mealPlanService';
 import { aiService } from '../services/aiService';
-import type { MealPlan as MealPlanType } from '../services/mealPlanService';
+import type { MealPlan as MealPlanType, MealSlot, MealType, WeeklyMeals } from '../services/mealPlanService';
 import type { AIMealPlan, AIMealSuggestion, DayName } from '../services/aiService';
 import './MealPlan.css';
 
@@ -19,6 +19,7 @@ const MealPlan: React.FC = () => {
   const [aiSuggestions, setAISuggestions] = useState<AIMealPlan | null>(null);
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiError, setAIError] = useState<string | null>(null);
+  const [isSavingAI, setIsSavingAI] = useState(false);
 
   const fetchMealPlans = async () => {
     setIsLoading(true);
@@ -73,6 +74,75 @@ const MealPlan: React.FC = () => {
   const handleCloseAISuggestions = () => {
     setAISuggestions(null);
     setAIError(null);
+  };
+
+  const convertToMealSlot = (suggestion: AIMealSuggestion): MealSlot => ({
+    recipeName: suggestion.recipeName,
+    description: suggestion.description,
+    prepTime: suggestion.prepTime,
+    ingredients: suggestion.ingredients,
+    usesExpiring: suggestion.usesExpiring,
+    isAISuggestion: true,
+  });
+
+  const handleAddAIMealToPlan = async (
+    day: DayName,
+    mealType: MealType,
+    suggestion: AIMealSuggestion
+  ) => {
+    const currentPlan = mealPlans[currentPlanIndex];
+    const mealSlot = convertToMealSlot(suggestion);
+    const updatedMeals = {
+      ...currentPlan.meals,
+      [day]: { ...currentPlan.meals[day], [mealType]: mealSlot },
+    };
+    const response = await mealPlanService.updateMealPlan(currentPlan.id, updatedMeals);
+    if (response.data) {
+      setMealPlans(prev => prev.map((p, i) => i === currentPlanIndex ? response.data! : p));
+    }
+  };
+
+  const handleSaveAllAISuggestions = async () => {
+    if (!aiSuggestions) return;
+    setIsSavingAI(true);
+    setAIError(null);
+
+    // Convert all AI meals to WeeklyMeals format
+    const meals: WeeklyMeals = {} as WeeklyMeals;
+    for (const day of DAYS) {
+      const dayMeals = aiSuggestions.meals[day];
+      meals[day] = {
+        breakfast: dayMeals?.breakfast ? convertToMealSlot(dayMeals.breakfast) : null,
+        lunch: dayMeals?.lunch ? convertToMealSlot(dayMeals.lunch) : null,
+        dinner: dayMeals?.dinner ? convertToMealSlot(dayMeals.dinner) : null,
+      };
+    }
+
+    const response = await aiService.saveAIMealPlan(meals);
+    if (response.error) {
+      setAIError(response.error);
+      setIsSavingAI(false);
+      return;
+    }
+
+    if (response.data) {
+      const savedPlan = response.data;
+      // Update mealPlans state - find existing plan for this week or add new
+      setMealPlans(prev => {
+        const existingIndex = prev.findIndex(p => p.weekStart === savedPlan.weekStart);
+        if (existingIndex >= 0) {
+          setCurrentPlanIndex(existingIndex);
+          return prev.map((p, i) => i === existingIndex ? savedPlan : p);
+        } else {
+          setCurrentPlanIndex(prev.length);
+          return [...prev, savedPlan];
+        }
+      });
+      // Close suggestions panel on success
+      handleCloseAISuggestions();
+    }
+
+    setIsSavingAI(false);
   };
 
   const handlePreviousWeek = () => {
@@ -226,6 +296,14 @@ const MealPlan: React.FC = () => {
                 </div>
               )}
 
+              <button
+                className="ai-suggestions__save-all-btn"
+                onClick={handleSaveAllAISuggestions}
+                disabled={isSavingAI}
+              >
+                {isSavingAI ? 'Saving...' : 'Save All to Meal Plan'}
+              </button>
+
               <div className="ai-suggestions__meals">
                 {flattenedSuggestions.map(({ day, mealType, suggestion }, idx) => (
                   <MealSuggestionCard
@@ -233,6 +311,8 @@ const MealPlan: React.FC = () => {
                     suggestion={suggestion}
                     mealType={mealType}
                     day={day}
+                    onAddToPlan={handleAddAIMealToPlan}
+                    hasMealPlan={mealPlans.length > 0}
                   />
                 ))}
               </div>

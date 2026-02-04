@@ -4,6 +4,7 @@ import type { MealSlot, MealType } from '../../services/mealPlanService';
 export interface MealSlotProps {
   mealType: MealType;
   meal?: MealSlot;
+  onAIMealClick?: (meal: MealSlot) => void;
 }
 
 const mealTypeLabels: Record<MealType, string> = {
@@ -12,28 +13,37 @@ const mealTypeLabels: Record<MealType, string> = {
   dinner: 'Dinner',
 };
 
-const MealSlotComponent: React.FC<MealSlotProps> = ({ mealType, meal }) => {
+const MealSlotComponent: React.FC<MealSlotProps> = ({ mealType, meal, onAIMealClick }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (meal?.recipeId) {
+    if (!meal) return;
+
+    if (meal.isAISuggestion && onAIMealClick) {
+      onAIMealClick(meal);
+    } else if (meal.recipeId) {
       navigate(`/recipes/${meal.recipeId}`);
     }
   };
 
+  const isClickable = meal && (meal.recipeId || (meal.isAISuggestion && onAIMealClick));
+
   return (
     <div
-      className={`meal-slot ${meal ? 'meal-slot--filled' : 'meal-slot--empty'}`}
-      onClick={meal ? handleClick : undefined}
-      role={meal ? 'button' : undefined}
-      tabIndex={meal ? 0 : undefined}
+      className={`meal-slot ${meal ? 'meal-slot--filled' : 'meal-slot--empty'} ${meal?.isAISuggestion ? 'meal-slot--ai' : ''}`}
+      onClick={isClickable ? handleClick : undefined}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
       onKeyDown={(e) => {
-        if (meal && (e.key === 'Enter' || e.key === ' ')) {
+        if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
           handleClick();
         }
       }}
     >
-      <span className="meal-slot__type">{mealTypeLabels[mealType]}</span>
+      <div className="meal-slot__header">
+        <span className="meal-slot__type">{mealTypeLabels[mealType]}</span>
+        {meal?.isAISuggestion && <span className="meal-slot__ai-badge">AI</span>}
+      </div>
       {meal ? (
         <span className="meal-slot__recipe">{meal.recipeName}</span>
       ) : (

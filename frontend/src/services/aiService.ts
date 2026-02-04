@@ -1,5 +1,6 @@
 import { api } from './api';
 import type { ApiResponse } from './api';
+import type { MealPlan, WeeklyMeals } from './mealPlanService';
 
 /** AI-generated meal suggestion */
 export interface AIMealSuggestion {
@@ -48,6 +49,12 @@ interface StatusResponse {
   model: string;
 }
 
+/** Response from save meal plan endpoint */
+interface SaveMealPlanResponse {
+  message: string;
+  mealPlan: MealPlan;
+}
+
 class AIService {
   /**
    * Generate a meal plan using AI
@@ -88,6 +95,26 @@ class AIService {
     }
 
     return { error: 'Failed to get AI status' };
+  }
+
+  /**
+   * Save AI-generated meal plan to the database
+   */
+  async saveAIMealPlan(meals: WeeklyMeals, weekStart?: string): Promise<ApiResponse<MealPlan>> {
+    const response = await api.request<SaveMealPlanResponse>('/api/ai/save-meal-plan', {
+      method: 'POST',
+      body: JSON.stringify({ meals, weekStart }),
+    });
+
+    if (response.error) {
+      return { error: response.error, code: response.code };
+    }
+
+    if (response.data?.mealPlan) {
+      return { data: response.data.mealPlan };
+    }
+
+    return { error: 'No meal plan returned' };
   }
 }
 
