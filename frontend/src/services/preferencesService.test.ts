@@ -19,7 +19,7 @@ describe('preferencesService', () => {
       expect(CURRENCIES.find(c => c.code === 'USD')?.symbol).toBe('$');
       expect(CURRENCIES.find(c => c.code === 'EUR')?.symbol).toBe('\u20AC');
       expect(CURRENCIES.find(c => c.code === 'GBP')?.symbol).toBe('\u00A3');
-      expect(CURRENCIES.find(c => c.code === 'SEK')?.symbol).toBe('SEK');
+      expect(CURRENCIES.find(c => c.code === 'SEK')?.symbol).toBe('kr');
       expect(CURRENCIES.find(c => c.code === 'JPY')?.symbol).toBe('\u00A5');
     });
   });
@@ -38,7 +38,7 @@ describe('preferencesService', () => {
     });
 
     it('returns correct symbol for SEK', () => {
-      expect(getCurrencySymbol('SEK')).toBe('SEK');
+      expect(getCurrencySymbol('SEK')).toBe('kr');
     });
 
     it('returns correct symbol for JPY', () => {

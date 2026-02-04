@@ -11,6 +11,23 @@ vi.mock('../../services/groceryService', () => ({
   getDefaultStorageLocation: vi.fn().mockReturnValue('pantry'),
 }));
 
+// Mock the PreferencesContext
+vi.mock('../../context/PreferencesContext', () => ({
+  usePreferences: vi.fn().mockReturnValue({
+    preferences: {
+      unitSystem: 'metric',
+      currency: 'USD',
+      dietaryRestrictions: [],
+      allergies: [],
+      dislikedIngredients: [],
+    },
+    isLoading: false,
+    error: null,
+    fetchPreferences: vi.fn(),
+    updatePreferences: vi.fn(),
+  }),
+}));
+
 describe('AddGroceryForm', () => {
   const mockOnSubmit = vi.fn();
 
