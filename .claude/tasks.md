@@ -528,7 +528,7 @@ Bug report: The currency preference cannot be saved. When users try to change th
 
 ## Task 18: Fix Receipt Crop Highlighting Out-of-Bounds Areas
 
-**Status:** pending
+**Status:** completed
 
 ### Description:
 Bug report: When cropping a receipt image, the highlight boxes still show areas that are outside the cropped region. The bounding box coordinates from OCR are relative to the cropped image, but the highlighting may be using wrong reference dimensions.
@@ -539,15 +539,16 @@ Bug report: When cropping a receipt image, the highlight boxes still show areas 
 - However, the preview URL shown might still reference the original image
 - Or the processed dimensions don't account for the crop transformation
 
-### Fix:
-1. Ensure the cropped image (not original) is displayed during review step
-2. Verify `processedDimensions` from backend matches the cropped image that was sent
-3. The `previewUrl` in review step should point to the cropped image blob URL
+### Solution:
+1. Added explicit `processedImageUrl` state to track the URL of the image that was actually sent to OCR
+2. When processing receipt, store the cropped preview URL (or original if not cropped) as `processedImageUrl`
+3. Use `processedImageUrl` in the review step's `HighlightedReceipt` component instead of `previewUrl`
+4. Added bounds checking in `HighlightedReceipt.scaleBox()` to clamp highlight boxes within image bounds
+5. Skip rendering boxes that are too small after clamping (likely out of bounds)
 
-### Files to investigate:
-- `frontend/src/components/Receipt/ReceiptScanner.tsx`
-- `frontend/src/components/Receipt/HighlightedReceipt.tsx`
-- `backend/src/services/ocrService.js`
+### Files modified:
+- `frontend/src/components/Receipt/ReceiptScanner.tsx` - Added processedImageUrl state, use it in review step
+- `frontend/src/components/Receipt/HighlightedReceipt.tsx` - Added bounds checking to prevent out-of-bounds highlighting
 
 ---
 

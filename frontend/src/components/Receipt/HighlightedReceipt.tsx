@@ -93,12 +93,29 @@ const HighlightedReceipt: React.FC<HighlightedReceiptProps> = ({
     const scaleX = imageSize.width / referenceWidth;
     const scaleY = imageSize.height / referenceHeight;
 
-    return {
-      left: bbox.x0 * scaleX,
-      top: bbox.y0 * scaleY,
-      width: (bbox.x1 - bbox.x0) * scaleX,
-      height: (bbox.y1 - bbox.y0) * scaleY,
-    };
+    // Scale the corner coordinates
+    let x0 = bbox.x0 * scaleX;
+    let y0 = bbox.y0 * scaleY;
+    let x1 = bbox.x1 * scaleX;
+    let y1 = bbox.y1 * scaleY;
+
+    // Clamp corners to image bounds to handle partial out-of-bounds boxes correctly
+    x0 = Math.max(0, Math.min(x0, imageSize.width));
+    y0 = Math.max(0, Math.min(y0, imageSize.height));
+    x1 = Math.max(0, Math.min(x1, imageSize.width));
+    y1 = Math.max(0, Math.min(y1, imageSize.height));
+
+    // Calculate final dimensions from clamped corners
+    const left = x0;
+    const top = y0;
+    const width = x1 - x0;
+    const height = y1 - y0;
+
+    // Minimum visible bbox size in pixels
+    const MIN_BBOX_SIZE = 2;
+    if (width < MIN_BBOX_SIZE || height < MIN_BBOX_SIZE) return null;
+
+    return { left, top, width, height };
   };
 
   const itemsWithBbox = items.filter((item) => item.bbox);
