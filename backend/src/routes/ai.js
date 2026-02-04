@@ -2,7 +2,7 @@ import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { generateAIMealPlan, isGroqConfigured } from '../services/aiService.js';
 import { CommonErrors } from '../utils/errorResponse.js';
-import pool from '../config/db.js';
+import pool from '../db/index.js';
 
 const router = express.Router();
 
