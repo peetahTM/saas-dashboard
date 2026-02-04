@@ -52,7 +52,7 @@ describe('GET /api/preferences', () => {
 
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: ['Vegetarian'],
         allergies: ['Peanuts'],
         disliked_ingredients: ['Cilantro'],
@@ -85,7 +85,7 @@ describe('GET /api/preferences', () => {
     // INSERT returns new preferences
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: null,
         allergies: null,
         disliked_ingredients: null,
@@ -121,7 +121,7 @@ describe('GET /api/preferences', () => {
     // Fetch again returns the preferences created by the other request
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: ['Vegan'],
         allergies: [],
         disliked_ingredients: [],
@@ -157,7 +157,7 @@ describe('GET /api/preferences', () => {
 
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: null,
         allergies: null,
         disliked_ingredients: null,
@@ -230,7 +230,7 @@ describe('PUT /api/preferences', () => {
 
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: ['Vegan'],
         allergies: ['Peanuts'],
         disliked_ingredients: ['Onions'],
@@ -267,7 +267,7 @@ describe('PUT /api/preferences', () => {
 
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: [],
         allergies: [],
         disliked_ingredients: [],
@@ -295,7 +295,7 @@ describe('PUT /api/preferences', () => {
 
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: [],
         allergies: [],
         disliked_ingredients: [],
@@ -329,7 +329,7 @@ describe('PUT /api/preferences', () => {
     for (const currency of validCurrencies) {
       pool.query.mockResolvedValueOnce({
         rows: [{
-          id: 1,
+          user_id: 1,
           dietary_restrictions: [],
           allergies: [],
           disliked_ingredients: [],
@@ -355,7 +355,7 @@ describe('PUT /api/preferences', () => {
     for (const unitSystem of validUnitSystems) {
       pool.query.mockResolvedValueOnce({
         rows: [{
-          id: 1,
+          user_id: 1,
           dietary_restrictions: [],
           allergies: [],
           disliked_ingredients: [],
@@ -399,7 +399,7 @@ describe('PUT /api/preferences', () => {
 
     pool.query.mockResolvedValueOnce({
       rows: [{
-        id: 1,
+        user_id: 1,
         dietary_restrictions: testData.dietaryRestrictions,
         allergies: testData.allergies,
         disliked_ingredients: testData.dislikedIngredients,
